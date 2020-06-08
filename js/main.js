@@ -1,8 +1,6 @@
 'use strict';
 
 var ADVERTS_AMOUNT = 8;
-var adverts = [];
-var avatars = [];
 var OFFER_TYPE = [
   'palace',
   'flat',
@@ -32,9 +30,9 @@ var PHOTOS_OFFER = [
   'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
-var MAP_WIDTH = document.querySelector('.map')
-  .offsetWidth;
+var MAP = document.querySelector('.map');
 
+var avatars = [];
 var avatarsGenerate = function () {
   for (var i = 1; i <= ADVERTS_AMOUNT; i++) {
     avatars.push('img/avatars/user0' + i + '.png');
@@ -84,7 +82,7 @@ var featuresGenerate = function () {
   rndFeatureOffer.length = Math.floor(Math.random() * (FEATURES_OFFER.length)) + 1;
   for (var i = 0; i < rndFeatureOffer.length; i++) {
     rndFeatureOffer[i] = FEATURES_OFFER[i];
-  };
+  }
   return rndFeatureOffer;
 };
 
@@ -100,7 +98,7 @@ var photosGenerate = function () {
 
 // Рандом для координаты x метки на карте
 var xLocationGenerate = function () {
-  return Math.floor((Math.random() * MAP_WIDTH));
+  return Math.floor((Math.random() * MAP.offsetWidth));
 };
 
 // Рандом для координаты y метки на карте
@@ -108,6 +106,7 @@ var yLocationGenerate = function () {
   return Math.floor((130 + Math.random() * 501));
 };
 
+var adverts = [];
 var advertsGenerate = function () {
   for (var i = 0; i < ADVERTS_AMOUNT; i++) {
     adverts.push(
@@ -125,7 +124,7 @@ var advertsGenerate = function () {
             checkin: checkinGenerate(),
             checkout: checkoutGenerate(),
             features: featuresGenerate(),
-            description: 'description' + i,
+            description: 'description',
             photos: photosGenerate()
           },
           location: {
@@ -138,3 +137,30 @@ var advertsGenerate = function () {
 };
 
 advertsGenerate();
+
+var mapVisibilityEnabled = function () {
+  MAP.classList.remove('map--faded');
+};
+
+mapVisibilityEnabled();
+
+var cardTemplate = document.querySelector('#card')
+  .content
+  .querySelector('.map__card');
+var listElement = document.querySelector('.map__pins');
+
+// Создание DOM элемента на основе JS объекта
+var renderCard = function (card) {
+  var cardElement = cardTemplate.cloneNode(true);
+
+  cardTemplate.querySelector('.popup__title').textContent = card.offer.title;
+
+  return cardElement;
+};
+
+// Заполнение блока DOM-элементами на основе массива JS-объектов
+var fragment = document.createDocumentFragment();
+adverts.forEach(function (card) {
+  fragment.appendChild(renderCard(card));
+});
+listElement.appendChild(fragment);
