@@ -1,23 +1,25 @@
 'use strict';
 
 var ADVERTS_AMOUNT = 8;
+var OFFER_TITLE = [
+  'Уютная квартира',
+  'Крутые апартаменты',
+  'Королевский замок',
+  'Скромная однушка',
+  'Бюджетная двушка'
+];
 var OFFER_TYPE = [
   'palace',
   'flat',
   'house',
   'bungalo'
 ];
-var OFFER_CHECKIN = [
+var OFFER_CHECKIN_OUT = [
   '12:00',
   '13:00',
   '14:00'
 ];
-var OFFER_CHECKOUT = [
-  '12:00',
-  '13:00',
-  '14:00'
-];
-var FEATURES_OFFER = [
+var OFFER_FEATURES = [
   'wifi',
   'dishwasher',
   'parking',
@@ -25,120 +27,145 @@ var FEATURES_OFFER = [
   'elevator',
   'conditioner'
 ];
-var PHOTOS_OFFER = [
+var OFFER_DESCRIPTION = [
+  'Лучший вариант только для Вас',
+  'Самый бюджетный выбор из всего, что есть на рынке',
+  'В этом дворце Вы будете чувствовать себя королём',
+  'Уютное жильё для тебя и кота'
+];
+var OFFER_PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel1.jpg',
   'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
-var MAP = document.querySelector('.map');
 
-var avatars = [];
-var avatarsGenerate = function () {
-  for (var i = 1; i <= ADVERTS_AMOUNT; i++) {
-    avatars.push('img/avatars/user0' + i + '.png');
-  }
+/**
+ * Генерирует рандомное число в диапазоне (Максимум и минимум включаются)
+ * @param  {number} min - от какого числа
+ * @param  {number} max - до какого числа
+ * @return {number} - рандомное число из диапазона
+ */
+var getRandomNumber = function (min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-avatarsGenerate();
-
-// Рандом от 100 до 999 для координат
-var locationGenerate = function () {
-  return Math.floor(100 + (Math.random() * (899)));
+/**
+ * Берет случайный элемент из массива
+ * @param  {array} array - исходный массив
+ * @return {string} - рандомный элемент из массива
+ */
+var getRandomElementFromArray = function (array) {
+  return array[getRandomNumber(0, array.length - 1)];
 };
 
 // Рандом от 100 до 10000 для цены
 var priceGenerate = function () {
-  return Math.floor(100 + (Math.random() * (9900)));
-};
-
-// Рандом для массива типа недвижимости
-var typeGenerate = function () {
-  return OFFER_TYPE[Math.floor((Math.random() * OFFER_TYPE.length))];
+  return getRandomNumber(100, 10000);
 };
 
 // Рандом от 1 до 10 для комнат
 var roomsGenerate = function () {
-  return Math.floor(1 + (Math.random() * (9)));
+  return getRandomNumber(1, 10);
 };
 
 // Рандом от 1 до 10 для количества гостей
 var guestsGenerate = function () {
-  return Math.floor(1 + (Math.random() * (9)));
+  return getRandomNumber(1, 10);
 };
 
-// Рандом для массива времени прибытия checkin
-var checkinGenerate = function () {
-  return OFFER_CHECKIN[Math.floor((Math.random() * OFFER_CHECKIN.length))];
+// Рандом для массива времени прибытия-выселения checkin-checkout
+var checkInOutGenerate = function () {
+  return getRandomElementFromArray(OFFER_CHECKIN_OUT);
 };
 
-// Рандом для массива времени отбытия checkout
-var checkoutGenerate = function () {
-  return OFFER_CHECKOUT[Math.floor((Math.random() * OFFER_CHECKOUT.length))];
-};
-
-// Рандом для массива features
-var featuresGenerate = function () {
-  var rndFeatureOffer = [];
-  rndFeatureOffer.length = Math.floor(Math.random() * (FEATURES_OFFER.length)) + 1;
-  for (var i = 0; i < rndFeatureOffer.length; i++) {
-    rndFeatureOffer[i] = FEATURES_OFFER[i];
+/**
+ * Перемешивание массива по алгоритму Фишера — Йетса
+ * @param  {array} array - исходный массив
+ * @return {array} array - перемешанный массив
+ */
+var shuffleArray = function (array) {
+  for (var i = array.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = array[i];
+    array[i] = array[j];
+    array[j] = t;
   }
-  return rndFeatureOffer;
+  return array;
 };
 
-// Рандом для массива photos
-var photosGenerate = function () {
-  var rndPhotosOffer = [];
-  rndPhotosOffer.length = Math.floor(Math.random() * (PHOTOS_OFFER.length)) + 1;
-  for (var i = 0; i < rndPhotosOffer.length; i++) {
-    rndPhotosOffer[i] = PHOTOS_OFFER[i];
+/**
+ * Перемешивает и меняет длину массива случайным образом
+ * @param  {array} array - исходный массив
+ * @return {array} randomArray - перемешанный массив со случайной длиной
+ */
+var generateRandomArray = function (array) {
+  var randomArray = shuffleArray(array.slice());
+  randomArray.length = getRandomNumber(1, randomArray.length);
+  return randomArray;
+};
+
+/**
+ * Возвращает случайным образом - либо перемешанный массив, либо строку NO PHOTO
+ * @param  {array} array - исходный массив
+ * @return {array} generateRandomArray(array) - перемешанный массив со случайной длиной
+ * @return {string} - строка NO PHOTO
+ */
+var generateRandomPhotoArray = function (array) {
+  var rndNumber = Math.floor(Math.random() * 2) > 0 ? true : false;
+  if (rndNumber) {
+    return generateRandomArray(array);
+  } else {
+    return 'NO PHOTO';
   }
-  return rndPhotosOffer;
 };
 
 // Рандом для координаты x метки на карте
+var MAP_WIDTH_MIN = 0;
+var MAP_WIDTH_MAX = 1200;
 var xLocationGenerate = function () {
-  return Math.floor((Math.random() * MAP.offsetWidth));
+  return getRandomNumber(MAP_WIDTH_MIN, MAP_WIDTH_MAX);
 };
 
 // Рандом для координаты y метки на карте
+var MAP_HEIGHT_MIN = 130;
+var MAP_HEIGHT_MAX = 630;
 var yLocationGenerate = function () {
-  return Math.floor((130 + Math.random() * 501));
+  return getRandomNumber(MAP_HEIGHT_MIN, MAP_HEIGHT_MAX);
 };
 
-var adverts = [];
-var advertsGenerate = function () {
-  for (var i = 0; i < ADVERTS_AMOUNT; i++) {
-    adverts.push(
-        {
-          author: {
-            avatar: avatars[i]
-          },
-          offer: {
-            title: 'title' + i,
-            address: locationGenerate() + ', ' + locationGenerate(),
-            price: priceGenerate(),
-            type: typeGenerate(),
-            rooms: roomsGenerate(),
-            guests: guestsGenerate(),
-            checkin: checkinGenerate(),
-            checkout: checkoutGenerate(),
-            features: featuresGenerate(),
-            description: 'description',
-            photos: photosGenerate()
-          },
-          location: {
-            x: xLocationGenerate(),
-            y: yLocationGenerate()
-          }
-        }
-    );
+var advertsGenerate = function (adsAmount) {
+  var adverts = [];
+  for (var i = 0; i < adsAmount; i++) {
+    adverts.push({
+      author: {
+        avatar: 'img/avatars/user0' + (i + 1) + '.png'
+      },
+      offer: {
+        title: getRandomElementFromArray(OFFER_TITLE),
+        address: xLocationGenerate() + ', ' + yLocationGenerate(),
+        price: priceGenerate(),
+        type: getRandomElementFromArray(OFFER_TYPE),
+        rooms: roomsGenerate(),
+        guests: guestsGenerate(),
+        checkin: checkInOutGenerate(),
+        checkout: checkInOutGenerate(),
+        features: generateRandomArray(OFFER_FEATURES),
+        description: getRandomElementFromArray(OFFER_DESCRIPTION),
+        photos: generateRandomPhotoArray(OFFER_PHOTOS)
+      },
+      location: {
+        x: xLocationGenerate(),
+        y: yLocationGenerate()
+      }
+    });
   }
+  return adverts;
 };
-
-advertsGenerate();
 
 var mapVisibilityEnabled = function () {
+  var MAP = document.querySelector('.map');
   MAP.classList.remove('map--faded');
 };
 
@@ -160,7 +187,9 @@ var renderCard = function (card) {
 
 // Заполнение блока DOM-элементами на основе массива JS-объектов
 var fragment = document.createDocumentFragment();
-adverts.forEach(function (card) {
+advertsGenerate(ADVERTS_AMOUNT).forEach(function (card) {
   fragment.appendChild(renderCard(card));
 });
 listElement.appendChild(fragment);
+
+console.log(advertsGenerate(ADVERTS_AMOUNT));
