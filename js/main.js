@@ -192,4 +192,3 @@ advertsGenerate(ADVERTS_AMOUNT).forEach(function (card) {
 });
 listElement.appendChild(fragment);
 
-console.log(advertsGenerate(ADVERTS_AMOUNT));
