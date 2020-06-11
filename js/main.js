@@ -198,7 +198,7 @@ var renderPin = function (card) {
 var pushCard = function (adverts) {
   var fragment = document.createDocumentFragment();
   var listElement = document.querySelector('.map__pins');
-  fragment.appendChild(renderCard(adverts[0]));
+  fragment.appendChild(renderCard(adverts));
   listElement.appendChild(fragment);
 };
 
@@ -215,7 +215,7 @@ var pushPins = function (adverts) {
   listElement.appendChild(fragment);
 };
 
-var ADVERTS = generateAdverts(ADVERTS_AMOUNT);
+var adverts = generateAdverts(ADVERTS_AMOUNT);
 mapVisibility(true);
-pushCard(ADVERTS);
-pushPins(ADVERTS);
+pushCard(adverts[0]);
+pushPins(adverts);
