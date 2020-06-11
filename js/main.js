@@ -97,17 +97,17 @@ var generateRandomArray = function (array) {
 };
 
 /**
- * Возвращает случайным образом - либо перемешанный массив, либо строку NO PHOTO
+ * Возвращает случайным образом - либо перемешанный массив, либо пустую строку
  * @param  {array} array - исходный массив
  * @return {array} generateRandomArray(array) - перемешанный массив со случайной длиной
- * @return {string} - строка NO PHOTO
+ * @return {string} - пустая строка
  */
 var generateRandomPhotoArray = function (array) {
   var rndNumber = Math.floor(Math.random() * 2) > 0 ? true : false;
   if (rndNumber) {
     return generateRandomArray(array);
   } else {
-    return 'NO PHOTO';
+    return ' ';
   }
 };
 
@@ -116,7 +116,7 @@ var generateRandomPhotoArray = function (array) {
  * @param  {number} adsAmount - желаемое количевто элементов массива
  * @return {array} adverts - готовый массив с требуемой длиной
  */
-var advertsGenerate = function (adsAmount) {
+var generateAdverts = function (adsAmount) {
   var adverts = [];
   for (var i = 0; i < adsAmount; i++) {
     adverts.push({
@@ -145,30 +145,79 @@ var advertsGenerate = function (adsAmount) {
   return adverts;
 };
 
-var mapVisibilityEnabled = function () {
+/**
+ * Переключает карту из неактивного состояния в активное и наоборот
+ * @param  {boolean} flag - true - активировать карту, false - деактивировать
+ */
+var mapVisibility = function (flag) {
   var MAP = document.querySelector('.map');
-  MAP.classList.remove('map--faded');
+  if (flag) {
+    MAP.classList.add('map--faded');
+  } else {
+    MAP.classList.remove('map--faded');
+  }
 };
 
-mapVisibilityEnabled();
-
-var cardTemplate = document.querySelector('#card')
+/**
+ * Создание DOM элемента по шаблону #card на основе JS объекта
+ * @param  {array} card - массив объектов, содержащий сгенерированные данные для карточки
+ * @return {object} cardElement - клон элемента map__card с содержимым из массива card
+ */
+var renderCard = function (card) {
+  var cardTemplate = document.querySelector('#card')
   .content
   .querySelector('.map__card');
-var listElement = document.querySelector('.map__pins');
-
-// Создание DOM элемента на основе JS объекта
-var renderCard = function (card) {
   var cardElement = cardTemplate.cloneNode(true);
-
-  cardTemplate.querySelector('.popup__title').textContent = card.offer.title;
-
+  cardElement.querySelector('.popup__avatar').src = card.author.avatar;
+  cardElement.querySelector('.popup__title').textContent = card.offer.title;
+  cardElement.querySelector('.popup__text--address').textContent = card.offer.address;
+  cardElement.querySelector('.popup__text--price').textContent = card.offer.price;
+  cardElement.querySelector('.popup__text--price').insertAdjacentHTML('beforeend', '&#x20bd;<span>/ночь</span>');
+  cardElement.querySelector('.popup__type').textContent = card.offer.type;
+  cardElement.querySelector('.popup__text--capacity').textContent = card.offer.rooms + ' комнаты для ' + card.offer.guests + ' гостей';
+  cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + card.offer.checkin + ', выезд до ' + card.offer.checkout;
+  cardElement.querySelector('.popup__description').textContent = card.offer.description;
   return cardElement;
 };
 
-// Заполнение блока DOM-элементами на основе массива JS-объектов
-var fragment = document.createDocumentFragment();
-advertsGenerate(ADVERTS_AMOUNT).forEach(function (card) {
-  fragment.appendChild(renderCard(card));
-});
-listElement.appendChild(fragment);
+/**
+ * Создание DOM элемента по шаблону #pin на основе JS объекта
+ * @param  {array} card - массив объектов, содержащий сгенерированные данные для пина
+ * @return {object} cardElement - клон элемента map__pin с содержимым из массива card
+ */
+var renderPin = function (card) {
+  var cardTemplate = document.querySelector('#pin')
+  .content
+  .querySelector('.map__pin');
+  var cardElement = cardTemplate.cloneNode(true);
+  cardElement.style = 'left: ' + card.location.x + 'px; top: ' + card.location.y + 'px;';
+  cardElement.children[0].src = card.author.avatar;
+  cardElement.children[0].alt = card.offer.title;
+  return cardElement;
+};
+
+/**
+ * Заполнение блока card DOM-элементами на основе массива JS-объектов
+ */
+var pushCard = function () {
+  var fragment = document.createDocumentFragment();
+  var listElement = document.querySelector('.map__pins');
+  fragment.appendChild(renderCard(generateAdverts(ADVERTS_AMOUNT)[0]));
+  listElement.appendChild(fragment);
+};
+
+/**
+ * Заполнение блока pins DOM-элементами на основе массива JS-объектов
+ */
+var pushPins = function () {
+  var fragment = document.createDocumentFragment();
+  var listElement = document.querySelector('.map__pins');
+  generateAdverts(ADVERTS_AMOUNT).forEach(function (card) {
+    fragment.appendChild(renderPin(card));
+  });
+  listElement.appendChild(fragment);
+};
+
+mapVisibility(true);
+pushCard();
+pushPins();
