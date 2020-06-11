@@ -8,12 +8,18 @@ var OFFER_TITLE = [
   'Скромная однушка',
   'Бюджетная двушка'
 ];
+var OFFER_PRICE_MIN = 100;
+var OFFER_PRICE_MAX = 10000;
 var OFFER_TYPE = [
   'palace',
   'flat',
   'house',
   'bungalo'
 ];
+var OFFER_ROOMS_MIN = 1;
+var OFFER_ROOMS_MAX = 10;
+var OFFER_GUESTS_MIN = 1;
+var OFFER_GUESTS_MAX = 10;
 var OFFER_CHECKIN_OUT = [
   '12:00',
   '13:00',
@@ -38,6 +44,10 @@ var OFFER_PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
+var MAP_WIDTH_MIN = 0;
+var MAP_WIDTH_MAX = 1200;
+var MAP_HEIGHT_MIN = 130;
+var MAP_HEIGHT_MAX = 630;
 
 /**
  * Генерирует рандомное число в диапазоне (Максимум и минимум включаются)
@@ -58,26 +68,6 @@ var getRandomNumber = function (min, max) {
  */
 var getRandomElementFromArray = function (array) {
   return array[getRandomNumber(0, array.length - 1)];
-};
-
-// Рандом от 100 до 10000 для цены
-var priceGenerate = function () {
-  return getRandomNumber(100, 10000);
-};
-
-// Рандом от 1 до 10 для комнат
-var roomsGenerate = function () {
-  return getRandomNumber(1, 10);
-};
-
-// Рандом от 1 до 10 для количества гостей
-var guestsGenerate = function () {
-  return getRandomNumber(1, 10);
-};
-
-// Рандом для массива времени прибытия-выселения checkin-checkout
-var checkInOutGenerate = function () {
-  return getRandomElementFromArray(OFFER_CHECKIN_OUT);
 };
 
 /**
@@ -121,20 +111,11 @@ var generateRandomPhotoArray = function (array) {
   }
 };
 
-// Рандом для координаты x метки на карте
-var MAP_WIDTH_MIN = 0;
-var MAP_WIDTH_MAX = 1200;
-var xLocationGenerate = function () {
-  return getRandomNumber(MAP_WIDTH_MIN, MAP_WIDTH_MAX);
-};
-
-// Рандом для координаты y метки на карте
-var MAP_HEIGHT_MIN = 130;
-var MAP_HEIGHT_MAX = 630;
-var yLocationGenerate = function () {
-  return getRandomNumber(MAP_HEIGHT_MIN, MAP_HEIGHT_MAX);
-};
-
+/**
+ * Генерирует массив моков, каждый элемент которого состоит из объектов
+ * @param  {number} adsAmount - желаемое количевто элементов массива
+ * @return {array} adverts - готовый массив с требуемой длиной
+ */
 var advertsGenerate = function (adsAmount) {
   var adverts = [];
   for (var i = 0; i < adsAmount; i++) {
@@ -144,20 +125,20 @@ var advertsGenerate = function (adsAmount) {
       },
       offer: {
         title: getRandomElementFromArray(OFFER_TITLE),
-        address: xLocationGenerate() + ', ' + yLocationGenerate(),
-        price: priceGenerate(),
+        address: getRandomNumber(MAP_WIDTH_MIN, MAP_WIDTH_MAX) + ', ' + getRandomNumber(MAP_HEIGHT_MIN, MAP_HEIGHT_MAX),
+        price: getRandomNumber(OFFER_PRICE_MIN, OFFER_PRICE_MAX),
         type: getRandomElementFromArray(OFFER_TYPE),
-        rooms: roomsGenerate(),
-        guests: guestsGenerate(),
-        checkin: checkInOutGenerate(),
-        checkout: checkInOutGenerate(),
+        rooms: getRandomNumber(OFFER_ROOMS_MIN, OFFER_ROOMS_MAX),
+        guests: getRandomNumber(OFFER_GUESTS_MIN, OFFER_GUESTS_MAX),
+        checkin: getRandomElementFromArray(OFFER_CHECKIN_OUT),
+        checkout: getRandomElementFromArray(OFFER_CHECKIN_OUT),
         features: generateRandomArray(OFFER_FEATURES),
         description: getRandomElementFromArray(OFFER_DESCRIPTION),
         photos: generateRandomPhotoArray(OFFER_PHOTOS)
       },
       location: {
-        x: xLocationGenerate(),
-        y: yLocationGenerate()
+        x: getRandomNumber(MAP_WIDTH_MIN, MAP_WIDTH_MAX),
+        y: getRandomNumber(MAP_HEIGHT_MIN, MAP_HEIGHT_MAX)
       }
     });
   }
@@ -191,4 +172,3 @@ advertsGenerate(ADVERTS_AMOUNT).forEach(function (card) {
   fragment.appendChild(renderCard(card));
 });
 listElement.appendChild(fragment);
-
