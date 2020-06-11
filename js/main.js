@@ -103,12 +103,7 @@ var generateRandomArray = function (array) {
  * @return {string} - пустая строка
  */
 var generateRandomPhotoArray = function (array) {
-  var rndNumber = Math.floor(Math.random() * 2) > 0 ? true : false;
-  if (rndNumber) {
-    return generateRandomArray(array);
-  } else {
-    return ' ';
-  }
+  return Math.floor(Math.random() * 2) > 0 ? generateRandomArray(array) : ' ';
 };
 
 /**
