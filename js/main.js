@@ -198,26 +198,29 @@ var renderPin = function (card) {
 
 /**
  * Заполнение блока card DOM-элементами на основе массива JS-объектов
+ * @param  {array} adverts - массив объектов, содержащий сгенерированные данные для карточки
  */
-var pushCard = function () {
+var pushCard = function (adverts) {
   var fragment = document.createDocumentFragment();
   var listElement = document.querySelector('.map__pins');
-  fragment.appendChild(renderCard(generateAdverts(ADVERTS_AMOUNT)[0]));
+  fragment.appendChild(renderCard(adverts[0]));
   listElement.appendChild(fragment);
 };
 
 /**
  * Заполнение блока pins DOM-элементами на основе массива JS-объектов
+ * @param  {array} adverts - массив объектов, содержащий сгенерированные данные для пина
  */
-var pushPins = function () {
+var pushPins = function (adverts) {
   var fragment = document.createDocumentFragment();
   var listElement = document.querySelector('.map__pins');
-  generateAdverts(ADVERTS_AMOUNT).forEach(function (card) {
+  adverts.forEach(function (card) {
     fragment.appendChild(renderPin(card));
   });
   listElement.appendChild(fragment);
 };
 
+var ADVERTS = generateAdverts(ADVERTS_AMOUNT);
 mapVisibility(true);
-pushCard();
-pushPins();
+pushCard(ADVERTS);
+pushPins(ADVERTS);
