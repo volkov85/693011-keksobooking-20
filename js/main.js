@@ -44,10 +44,12 @@ var OFFER_PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
-var MAP_WIDTH_MIN = 0;
-var MAP_WIDTH_MAX = 1200;
-var MAP_HEIGHT_MIN = 130;
-var MAP_HEIGHT_MAX = 630;
+var MAP_SIZE = {
+  MAP_WIDTH_MIN: 0,
+  MAP_WIDTH_MAX: 1200,
+  MAP_HEIGHT_MIN: 130,
+  MAP_HEIGHT_MAX: 630
+};
 
 /**
  * Генерирует рандомное число в диапазоне (Максимум и минимум включаются)
@@ -97,13 +99,13 @@ var generateRandomArray = function (array) {
 };
 
 /**
- * Возвращает случайным образом - либо перемешанный массив, либо пустую строку
+ * Возвращает случайным образом - либо перемешанный массив, либо значение false
  * @param  {array} array - исходный массив
  * @return {array} generateRandomArray(array) - перемешанный массив со случайной длиной
- * @return {string} - пустая строка
+ * @return {boolean} - false
  */
 var generateRandomPhotoArray = function (array) {
-  return Math.floor(Math.random() * 2) > 0 ? generateRandomArray(array) : ' ';
+  return Math.floor(Math.random() * 2) ? generateRandomArray(array) : false;
 };
 
 /**
@@ -114,13 +116,15 @@ var generateRandomPhotoArray = function (array) {
 var generateAdverts = function (adsAmount) {
   var adverts = [];
   for (var i = 0; i < adsAmount; i++) {
+    var randomX = getRandomNumber(MAP_SIZE.MAP_WIDTH_MIN, MAP_SIZE.MAP_WIDTH_MAX);
+    var randomY = getRandomNumber(MAP_SIZE.MAP_HEIGHT_MIN, MAP_SIZE.MAP_HEIGHT_MAX);
     adverts.push({
       author: {
         avatar: 'img/avatars/user0' + (i + 1) + '.png'
       },
       offer: {
         title: getRandomElementFromArray(OFFER_TITLE),
-        address: getRandomNumber(MAP_WIDTH_MIN, MAP_WIDTH_MAX) + ', ' + getRandomNumber(MAP_HEIGHT_MIN, MAP_HEIGHT_MAX),
+        address: randomX + ', ' + randomY,
         price: getRandomNumber(OFFER_PRICE_MIN, OFFER_PRICE_MAX),
         type: getRandomElementFromArray(OFFER_TYPE),
         rooms: getRandomNumber(OFFER_ROOMS_MIN, OFFER_ROOMS_MAX),
@@ -132,8 +136,8 @@ var generateAdverts = function (adsAmount) {
         photos: generateRandomPhotoArray(OFFER_PHOTOS)
       },
       location: {
-        x: getRandomNumber(MAP_WIDTH_MIN, MAP_WIDTH_MAX),
-        y: getRandomNumber(MAP_HEIGHT_MIN, MAP_HEIGHT_MAX)
+        x: randomX,
+        y: randomY
       }
     });
   }
@@ -154,6 +158,24 @@ var mapVisibility = function (flag) {
 };
 
 /**
+ * Функция плюрализации для русского языка
+ * @param {number} n - число, после которого нужно склонять существительное
+ * @param {array} forms - массив окончаний для склоняемого существительного
+ * @return {string} - необходимое окончание для существительного
+ */
+function pluralizeRus(n, forms) {
+  var ending = '';
+  if (n % 10 === 1 && n % 100 !== 11) {
+    ending = forms[0];
+  } else if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) {
+    ending = forms[1];
+  } else {
+    ending = forms[2];
+  }
+  return ending;
+}
+
+/**
  * Создание DOM элемента по шаблону #card на основе JS объекта
  * @param  {array} card - массив объектов, содержащий сгенерированные данные для карточки
  * @return {object} cardElement - клон элемента map__card с содержимым из массива card
@@ -166,10 +188,10 @@ var renderCard = function (card) {
   cardElement.querySelector('.popup__avatar').src = card.author.avatar;
   cardElement.querySelector('.popup__title').textContent = card.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = card.offer.address;
-  cardElement.querySelector('.popup__text--price').textContent = card.offer.price;
-  cardElement.querySelector('.popup__text--price').insertAdjacentHTML('beforeend', '&#x20bd;<span>/ночь</span>');
+  cardElement.querySelector('.popup__text--price').textContent = '';
+  cardElement.querySelector('.popup__text--price').insertAdjacentHTML('beforeend', card.offer.price + '&#x20bd;<span>/ночь</span>');
   cardElement.querySelector('.popup__type').textContent = card.offer.type;
-  cardElement.querySelector('.popup__text--capacity').textContent = card.offer.rooms + ' комнаты для ' + card.offer.guests + ' гостей';
+  cardElement.querySelector('.popup__text--capacity').textContent = card.offer.rooms + ' комнат' + pluralizeRus(card.offer.rooms, ['а', 'ы', '']) + ' для ' + card.offer.guests + ' гост' + pluralizeRus(card.offer.guests, ['я', 'ей', 'ей']);
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + card.offer.checkin + ', выезд до ' + card.offer.checkout;
   cardElement.querySelector('.popup__description').textContent = card.offer.description;
   return cardElement;
@@ -193,12 +215,12 @@ var renderPin = function (card) {
 
 /**
  * Заполнение блока card DOM-элементами на основе массива JS-объектов
- * @param  {array} adverts - массив объектов, содержащий сгенерированные данные для карточки
+ * @param  {array} advert - массив объектов, содержащий сгенерированные данные для карточки
  */
-var pushCard = function (adverts) {
+var pushCard = function (advert) {
   var fragment = document.createDocumentFragment();
   var listElement = document.querySelector('.map__pins');
-  fragment.appendChild(renderCard(adverts));
+  fragment.appendChild(renderCard(advert));
   listElement.appendChild(fragment);
 };
 
