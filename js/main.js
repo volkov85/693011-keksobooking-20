@@ -50,6 +50,8 @@ var MAP_SIZE = {
   HEIGHT_MIN: 130,
   HEIGHT_MAX: 630
 };
+var PIN_WIDTH = 50;
+var PIN_HEIGHT = 70;
 
 /**
  * Генерирует рандомное число в диапазоне (Максимум и минимум включаются)
@@ -198,6 +200,9 @@ var renderCard = function (card) {
       break;
     case 'flat':
       correctOfferType = 'Квартира';
+      break;
+    default:
+      correctOfferType = 'Не задан тип жилья, либо некорректен';
   }
   cardElement.querySelector('.popup__avatar').src = card.author.avatar;
   cardElement.querySelector('.popup__title').textContent = card.offer.title;
@@ -221,7 +226,7 @@ var renderPin = function (card) {
   .content
   .querySelector('.map__pin');
   var cardElement = cardTemplate.cloneNode(true);
-  cardElement.style = 'left: ' + card.location.x + 'px; top: ' + card.location.y + 'px;';
+  cardElement.style = 'left: ' + (card.location.x + PIN_WIDTH / 2) + 'px; top: ' + (card.location.y + PIN_HEIGHT) + 'px;';
   cardElement.children[0].src = card.author.avatar;
   cardElement.children[0].alt = card.offer.title;
   return cardElement;
