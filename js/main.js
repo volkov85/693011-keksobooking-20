@@ -45,10 +45,10 @@ var OFFER_PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
 var MAP_SIZE = {
-  MAP_WIDTH_MIN: 0,
-  MAP_WIDTH_MAX: 1200,
-  MAP_HEIGHT_MIN: 130,
-  MAP_HEIGHT_MAX: 630
+  WIDTH_MIN: 0,
+  WIDTH_MAX: 1200,
+  HEIGHT_MIN: 130,
+  HEIGHT_MAX: 630
 };
 
 /**
@@ -65,7 +65,7 @@ var getRandomNumber = function (min, max) {
 
 /**
  * Берет случайный элемент из массива
- * @param  {array} array - исходный массив
+ * @param  {Array} array - исходный массив
  * @return {string} - рандомный элемент из массива
  */
 var getRandomElementFromArray = function (array) {
@@ -74,8 +74,8 @@ var getRandomElementFromArray = function (array) {
 
 /**
  * Перемешивание массива по алгоритму Фишера — Йетса
- * @param  {array} array - исходный массив
- * @return {array} array - перемешанный массив
+ * @param  {Array} array - исходный массив
+ * @return {Array} array - перемешанный массив
  */
 var shuffleArray = function (array) {
   for (var i = array.length - 1; i > 0; i--) {
@@ -89,8 +89,8 @@ var shuffleArray = function (array) {
 
 /**
  * Перемешивает и меняет длину массива случайным образом
- * @param  {array} array - исходный массив
- * @return {array} randomArray - перемешанный массив со случайной длиной
+ * @param  {Array} array - исходный массив
+ * @return {Array} randomArray - перемешанный массив со случайной длиной
  */
 var generateRandomArray = function (array) {
   var randomArray = shuffleArray(array.slice());
@@ -100,8 +100,8 @@ var generateRandomArray = function (array) {
 
 /**
  * Возвращает случайным образом - либо перемешанный массив, либо значение false
- * @param  {array} array - исходный массив
- * @return {array} generateRandomArray(array) - перемешанный массив со случайной длиной
+ * @param  {Array} array - исходный массив
+ * @return {Array} generateRandomArray(array) - перемешанный массив со случайной длиной
  * @return {boolean} - false
  */
 var generateRandomPhotoArray = function (array) {
@@ -111,13 +111,13 @@ var generateRandomPhotoArray = function (array) {
 /**
  * Генерирует массив моков, каждый элемент которого состоит из объектов
  * @param  {number} adsAmount - желаемое количевто элементов массива
- * @return {array} adverts - готовый массив с требуемой длиной
+ * @return {Array} adverts - готовый массив с требуемой длиной
  */
 var generateAdverts = function (adsAmount) {
   var adverts = [];
   for (var i = 0; i < adsAmount; i++) {
-    var randomX = getRandomNumber(MAP_SIZE.MAP_WIDTH_MIN, MAP_SIZE.MAP_WIDTH_MAX);
-    var randomY = getRandomNumber(MAP_SIZE.MAP_HEIGHT_MIN, MAP_SIZE.MAP_HEIGHT_MAX);
+    var randomX = getRandomNumber(MAP_SIZE.WIDTH_MIN, MAP_SIZE.WIDTH_MAX);
+    var randomY = getRandomNumber(MAP_SIZE.HEIGHT_MIN, MAP_SIZE.HEIGHT_MAX);
     adverts.push({
       author: {
         avatar: 'img/avatars/user0' + (i + 1) + '.png'
@@ -160,7 +160,7 @@ var mapVisibility = function (flag) {
 /**
  * Функция плюрализации для русского языка
  * @param {number} n - число, после которого нужно склонять существительное
- * @param {array} forms - массив окончаний для склоняемого существительного
+ * @param {Array} forms - массив окончаний для склоняемого существительного
  * @return {string} - необходимое окончание для существительного
  */
 function pluralizeRus(n, forms) {
@@ -177,20 +177,34 @@ function pluralizeRus(n, forms) {
 
 /**
  * Создание DOM элемента по шаблону #card на основе JS объекта
- * @param  {array} card - массив объектов, содержащий сгенерированные данные для карточки
- * @return {object} cardElement - клон элемента map__card с содержимым из массива card
+ * @param  {Array} card - массив объектов, содержащий сгенерированные данные для карточки
+ * @return {Object} cardElement - клон элемента map__card с содержимым из массива card
  */
 var renderCard = function (card) {
   var cardTemplate = document.querySelector('#card')
   .content
   .querySelector('.map__card');
   var cardElement = cardTemplate.cloneNode(true);
+  var correctOfferType = '';
+  switch (card.offer.type) {
+    case 'palace':
+      correctOfferType = 'Дворец';
+      break;
+    case 'house':
+      correctOfferType = 'Дом';
+      break;
+    case 'bungalo':
+      correctOfferType = 'Бунгало';
+      break;
+    case 'flat':
+      correctOfferType = 'Квартира';
+  }
   cardElement.querySelector('.popup__avatar').src = card.author.avatar;
   cardElement.querySelector('.popup__title').textContent = card.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = card.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = '';
   cardElement.querySelector('.popup__text--price').insertAdjacentHTML('beforeend', card.offer.price + '&#x20bd;<span>/ночь</span>');
-  cardElement.querySelector('.popup__type').textContent = card.offer.type;
+  cardElement.querySelector('.popup__type').textContent = correctOfferType;
   cardElement.querySelector('.popup__text--capacity').textContent = card.offer.rooms + ' комнат' + pluralizeRus(card.offer.rooms, ['а', 'ы', '']) + ' для ' + card.offer.guests + ' гост' + pluralizeRus(card.offer.guests, ['я', 'ей', 'ей']);
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + card.offer.checkin + ', выезд до ' + card.offer.checkout;
   cardElement.querySelector('.popup__description').textContent = card.offer.description;
@@ -199,8 +213,8 @@ var renderCard = function (card) {
 
 /**
  * Создание DOM элемента по шаблону #pin на основе JS объекта
- * @param  {array} card - массив объектов, содержащий сгенерированные данные для пина
- * @return {object} cardElement - клон элемента map__pin с содержимым из массива card
+ * @param  {Array} card - массив объектов, содержащий сгенерированные данные для пина
+ * @return {Object} cardElement - клон элемента map__pin с содержимым из массива card
  */
 var renderPin = function (card) {
   var cardTemplate = document.querySelector('#pin')
@@ -215,18 +229,16 @@ var renderPin = function (card) {
 
 /**
  * Заполнение блока card DOM-элементами на основе массива JS-объектов
- * @param  {array} advert - массив объектов, содержащий сгенерированные данные для карточки
+ * @param  {Array} advert - элемент массива объектов, содержащий сгенерированные данные для карточки
  */
 var pushCard = function (advert) {
-  var fragment = document.createDocumentFragment();
   var listElement = document.querySelector('.map__pins');
-  fragment.appendChild(renderCard(advert));
-  listElement.appendChild(fragment);
+  listElement.appendChild(renderCard(advert));
 };
 
 /**
  * Заполнение блока pins DOM-элементами на основе массива JS-объектов
- * @param  {array} adverts - массив объектов, содержащий сгенерированные данные для пина
+ * @param  {Array} adverts - массив объектов, содержащий сгенерированные данные для пина
  */
 var pushPins = function (adverts) {
   var fragment = document.createDocumentFragment();
