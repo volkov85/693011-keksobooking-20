@@ -187,6 +187,7 @@ var renderCard = function (card) {
   .content
   .querySelector('.map__card');
   var cardElement = cardTemplate.cloneNode(true);
+
   var correctOfferType = '';
   switch (card.offer.type) {
     case 'palace':
@@ -204,6 +205,23 @@ var renderCard = function (card) {
     default:
       correctOfferType = 'Не задан тип жилья, либо некорректен';
   }
+
+  var elemFeatures = cardElement.querySelectorAll('.popup__feature');
+  card.offer.features.forEach(function (item) {
+    for (var i = 0; i < elemFeatures.length; i++) {
+      if (elemFeatures[i].classList.contains('popup__feature--' + item)) {
+        elemFeatures[i].classList.toggle('holdIt');
+      }
+    }
+  });
+  elemFeatures.forEach(function (item) {
+    if (!item.classList.contains('holdIt')) {
+      item.remove();
+    } else {
+      item.classList.remove('holdIt');
+    }
+  });
+
   cardElement.querySelector('.popup__avatar').src = card.author.avatar;
   cardElement.querySelector('.popup__title').textContent = card.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = card.offer.address;
@@ -258,3 +276,4 @@ var adverts = generateAdverts(ADVERTS_AMOUNT);
 mapVisibility(true);
 pushCard(adverts[0]);
 pushPins(adverts);
+console.log(adverts[0].offer.features);
