@@ -118,7 +118,7 @@ var generateRandomPhotoArray = function (array) {
 var generateAdverts = function (adsAmount) {
   var adverts = [];
   for (var i = 0; i < adsAmount; i++) {
-    var randomX = getRandomNumber(MAP_SIZE.WIDTH_MIN, MAP_SIZE.WIDTH_MAX);
+    var randomX = getRandomNumber(MAP_SIZE.WIDTH_MIN, MAP_SIZE.WIDTH_MAX - PIN_WIDTH);
     var randomY = getRandomNumber(MAP_SIZE.HEIGHT_MIN, MAP_SIZE.HEIGHT_MAX);
     adverts.push({
       author: {
@@ -222,6 +222,23 @@ var renderCard = function (card) {
     }
   });
 
+  var elemPhoto = cardElement.querySelector('.popup__photo');
+  var elemPhotos = cardElement.querySelector('.popup__photos');
+  if (card.offer.photos) {
+    if (card.offer.photos.length === 1) {
+      elemPhoto.src = card.offer.photos[0];
+    } else {
+      elemPhoto.src = card.offer.photos[0];
+      for (var i = 1; i < card.offer.photos.length; i++) {
+        var clonePhoto = elemPhoto.cloneNode(true);
+        clonePhoto.src = card.offer.photos[i];
+        elemPhotos.appendChild(clonePhoto);
+      }
+    }
+  } else {
+    elemPhoto.remove();
+  }
+
   cardElement.querySelector('.popup__avatar').src = card.author.avatar;
   cardElement.querySelector('.popup__title').textContent = card.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = card.offer.address;
@@ -276,4 +293,3 @@ var adverts = generateAdverts(ADVERTS_AMOUNT);
 mapVisibility(true);
 pushCard(adverts[0]);
 pushPins(adverts);
-console.log(adverts[0].offer.features);
