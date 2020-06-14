@@ -272,8 +272,9 @@ var renderPin = function (card) {
  * @param  {Array} advert - элемент массива объектов, содержащий сгенерированные данные для карточки
  */
 var pushCard = function (advert) {
-  var listElement = document.querySelector('.map__pins');
-  listElement.appendChild(renderCard(advert));
+  var listElement = document.querySelector('.map');
+  var filterElement = document.querySelector('.map__filters-container');
+  listElement.insertBefore(renderCard(advert), filterElement);
 };
 
 /**
