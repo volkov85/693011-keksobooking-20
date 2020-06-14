@@ -44,10 +44,14 @@ var OFFER_PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
-var MAP_WIDTH_MIN = 0;
-var MAP_WIDTH_MAX = 1200;
-var MAP_HEIGHT_MIN = 130;
-var MAP_HEIGHT_MAX = 630;
+var MAP_SIZE = {
+  WIDTH_MIN: 0,
+  WIDTH_MAX: 1200,
+  HEIGHT_MIN: 130,
+  HEIGHT_MAX: 630
+};
+var PIN_WIDTH = 50;
+var PIN_HEIGHT = 70;
 
 /**
  * Генерирует рандомное число в диапазоне (Максимум и минимум включаются)
@@ -63,7 +67,7 @@ var getRandomNumber = function (min, max) {
 
 /**
  * Берет случайный элемент из массива
- * @param  {array} array - исходный массив
+ * @param  {Array} array - исходный массив
  * @return {string} - рандомный элемент из массива
  */
 var getRandomElementFromArray = function (array) {
@@ -72,8 +76,8 @@ var getRandomElementFromArray = function (array) {
 
 /**
  * Перемешивание массива по алгоритму Фишера — Йетса
- * @param  {array} array - исходный массив
- * @return {array} array - перемешанный массив
+ * @param  {Array} array - исходный массив
+ * @return {Array} array - перемешанный массив
  */
 var shuffleArray = function (array) {
   for (var i = array.length - 1; i > 0; i--) {
@@ -87,8 +91,8 @@ var shuffleArray = function (array) {
 
 /**
  * Перемешивает и меняет длину массива случайным образом
- * @param  {array} array - исходный массив
- * @return {array} randomArray - перемешанный массив со случайной длиной
+ * @param  {Array} array - исходный массив
+ * @return {Array} randomArray - перемешанный массив со случайной длиной
  */
 var generateRandomArray = function (array) {
   var randomArray = shuffleArray(array.slice());
@@ -97,30 +101,32 @@ var generateRandomArray = function (array) {
 };
 
 /**
- * Возвращает случайным образом - либо перемешанный массив, либо пустую строку
- * @param  {array} array - исходный массив
- * @return {array} generateRandomArray(array) - перемешанный массив со случайной длиной
- * @return {string} - пустая строка
+ * Возвращает случайным образом - либо перемешанный массив, либо значение false
+ * @param  {Array} array - исходный массив
+ * @return {Array} generateRandomArray(array) - перемешанный массив со случайной длиной
+ * @return {boolean} - false
  */
 var generateRandomPhotoArray = function (array) {
-  return Math.floor(Math.random() * 2) > 0 ? generateRandomArray(array) : ' ';
+  return Math.floor(Math.random() * 2) ? generateRandomArray(array) : false;
 };
 
 /**
  * Генерирует массив моков, каждый элемент которого состоит из объектов
  * @param  {number} adsAmount - желаемое количевто элементов массива
- * @return {array} adverts - готовый массив с требуемой длиной
+ * @return {Array} adverts - готовый массив с требуемой длиной
  */
 var generateAdverts = function (adsAmount) {
   var adverts = [];
   for (var i = 0; i < adsAmount; i++) {
+    var randomX = getRandomNumber(MAP_SIZE.WIDTH_MIN, MAP_SIZE.WIDTH_MAX - PIN_WIDTH);
+    var randomY = getRandomNumber(MAP_SIZE.HEIGHT_MIN, MAP_SIZE.HEIGHT_MAX);
     adverts.push({
       author: {
         avatar: 'img/avatars/user0' + (i + 1) + '.png'
       },
       offer: {
         title: getRandomElementFromArray(OFFER_TITLE),
-        address: getRandomNumber(MAP_WIDTH_MIN, MAP_WIDTH_MAX) + ', ' + getRandomNumber(MAP_HEIGHT_MIN, MAP_HEIGHT_MAX),
+        address: randomX + ', ' + randomY,
         price: getRandomNumber(OFFER_PRICE_MIN, OFFER_PRICE_MAX),
         type: getRandomElementFromArray(OFFER_TYPE),
         rooms: getRandomNumber(OFFER_ROOMS_MIN, OFFER_ROOMS_MAX),
@@ -132,8 +138,8 @@ var generateAdverts = function (adsAmount) {
         photos: generateRandomPhotoArray(OFFER_PHOTOS)
       },
       location: {
-        x: getRandomNumber(MAP_WIDTH_MIN, MAP_WIDTH_MAX),
-        y: getRandomNumber(MAP_HEIGHT_MIN, MAP_HEIGHT_MAX)
+        x: randomX,
+        y: randomY
       }
     });
   }
@@ -154,22 +160,92 @@ var mapVisibility = function (flag) {
 };
 
 /**
+ * Функция плюрализации для русского языка
+ * @param {number} n - число, после которого нужно склонять существительное
+ * @param {Array} forms - массив окончаний для склоняемого существительного
+ * @return {string} - необходимое окончание для существительного
+ */
+function pluralizeRus(n, forms) {
+  var ending = '';
+  if (n % 10 === 1 && n % 100 !== 11) {
+    ending = forms[0];
+  } else if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) {
+    ending = forms[1];
+  } else {
+    ending = forms[2];
+  }
+  return ending;
+}
+
+/**
  * Создание DOM элемента по шаблону #card на основе JS объекта
- * @param  {array} card - массив объектов, содержащий сгенерированные данные для карточки
- * @return {object} cardElement - клон элемента map__card с содержимым из массива card
+ * @param  {Array} card - массив объектов, содержащий сгенерированные данные для карточки
+ * @return {Object} cardElement - клон элемента map__card с содержимым из массива card
  */
 var renderCard = function (card) {
   var cardTemplate = document.querySelector('#card')
   .content
   .querySelector('.map__card');
   var cardElement = cardTemplate.cloneNode(true);
+
+  var correctOfferType = '';
+  switch (card.offer.type) {
+    case 'palace':
+      correctOfferType = 'Дворец';
+      break;
+    case 'house':
+      correctOfferType = 'Дом';
+      break;
+    case 'bungalo':
+      correctOfferType = 'Бунгало';
+      break;
+    case 'flat':
+      correctOfferType = 'Квартира';
+      break;
+    default:
+      correctOfferType = 'Не задан тип жилья, либо некорректен';
+  }
+
+  var elemFeatures = cardElement.querySelectorAll('.popup__feature');
+  card.offer.features.forEach(function (item) {
+    for (var i = 0; i < elemFeatures.length; i++) {
+      if (elemFeatures[i].classList.contains('popup__feature--' + item)) {
+        elemFeatures[i].classList.toggle('holdIt');
+      }
+    }
+  });
+  elemFeatures.forEach(function (item) {
+    if (!item.classList.contains('holdIt')) {
+      item.remove();
+    } else {
+      item.classList.remove('holdIt');
+    }
+  });
+
+  var elemPhoto = cardElement.querySelector('.popup__photo');
+  var elemPhotos = cardElement.querySelector('.popup__photos');
+  if (card.offer.photos) {
+    if (card.offer.photos.length === 1) {
+      elemPhoto.src = card.offer.photos[0];
+    } else {
+      elemPhoto.src = card.offer.photos[0];
+      for (var i = 1; i < card.offer.photos.length; i++) {
+        var clonePhoto = elemPhoto.cloneNode(true);
+        clonePhoto.src = card.offer.photos[i];
+        elemPhotos.appendChild(clonePhoto);
+      }
+    }
+  } else {
+    elemPhoto.remove();
+  }
+
   cardElement.querySelector('.popup__avatar').src = card.author.avatar;
   cardElement.querySelector('.popup__title').textContent = card.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = card.offer.address;
-  cardElement.querySelector('.popup__text--price').textContent = card.offer.price;
-  cardElement.querySelector('.popup__text--price').insertAdjacentHTML('beforeend', '&#x20bd;<span>/ночь</span>');
-  cardElement.querySelector('.popup__type').textContent = card.offer.type;
-  cardElement.querySelector('.popup__text--capacity').textContent = card.offer.rooms + ' комнаты для ' + card.offer.guests + ' гостей';
+  cardElement.querySelector('.popup__text--price').textContent = '';
+  cardElement.querySelector('.popup__text--price').insertAdjacentHTML('beforeend', card.offer.price + '&#x20bd;<span>/ночь</span>');
+  cardElement.querySelector('.popup__type').textContent = correctOfferType;
+  cardElement.querySelector('.popup__text--capacity').textContent = card.offer.rooms + ' комнат' + pluralizeRus(card.offer.rooms, ['а', 'ы', '']) + ' для ' + card.offer.guests + ' гост' + pluralizeRus(card.offer.guests, ['я', 'ей', 'ей']);
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + card.offer.checkin + ', выезд до ' + card.offer.checkout;
   cardElement.querySelector('.popup__description').textContent = card.offer.description;
   return cardElement;
@@ -177,15 +253,15 @@ var renderCard = function (card) {
 
 /**
  * Создание DOM элемента по шаблону #pin на основе JS объекта
- * @param  {array} card - массив объектов, содержащий сгенерированные данные для пина
- * @return {object} cardElement - клон элемента map__pin с содержимым из массива card
+ * @param  {Array} card - массив объектов, содержащий сгенерированные данные для пина
+ * @return {Object} cardElement - клон элемента map__pin с содержимым из массива card
  */
 var renderPin = function (card) {
   var cardTemplate = document.querySelector('#pin')
   .content
   .querySelector('.map__pin');
   var cardElement = cardTemplate.cloneNode(true);
-  cardElement.style = 'left: ' + card.location.x + 'px; top: ' + card.location.y + 'px;';
+  cardElement.style = 'left: ' + (card.location.x + PIN_WIDTH / 2) + 'px; top: ' + (card.location.y + PIN_HEIGHT) + 'px;';
   cardElement.children[0].src = card.author.avatar;
   cardElement.children[0].alt = card.offer.title;
   return cardElement;
@@ -193,18 +269,17 @@ var renderPin = function (card) {
 
 /**
  * Заполнение блока card DOM-элементами на основе массива JS-объектов
- * @param  {array} adverts - массив объектов, содержащий сгенерированные данные для карточки
+ * @param  {Array} advert - элемент массива объектов, содержащий сгенерированные данные для карточки
  */
-var pushCard = function (adverts) {
-  var fragment = document.createDocumentFragment();
-  var listElement = document.querySelector('.map__pins');
-  fragment.appendChild(renderCard(adverts));
-  listElement.appendChild(fragment);
+var pushCard = function (advert) {
+  var listElement = document.querySelector('.map');
+  var filterElement = document.querySelector('.map__filters-container');
+  listElement.insertBefore(renderCard(advert), filterElement);
 };
 
 /**
  * Заполнение блока pins DOM-элементами на основе массива JS-объектов
- * @param  {array} adverts - массив объектов, содержащий сгенерированные данные для пина
+ * @param  {Array} adverts - массив объектов, содержащий сгенерированные данные для пина
  */
 var pushPins = function (adverts) {
   var fragment = document.createDocumentFragment();
