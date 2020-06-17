@@ -11,10 +11,10 @@ var OFFER_TITLE = [
 var OFFER_PRICE_MIN = 100;
 var OFFER_PRICE_MAX = 10000;
 var OfferType = {
-  palace: 'Дворец',
-  flat: 'Квартира',
-  house: 'Дом',
-  bungalo: 'Бунгало'
+  PALACE: 'Дворец',
+  FLAT: 'Квартира',
+  HOUSE: 'Дом',
+  BUNGALO: 'Бунгало'
 };
 var OFFER_ROOMS_MIN = 1;
 var OFFER_ROOMS_MAX = 10;
@@ -50,8 +50,6 @@ var MapSize = {
   HEIGHT_MIN: 130,
   HEIGHT_MAX: 630
 };
-var PIN_WIDTH = 50;
-var PIN_HEIGHT = 70;
 
 /**
  * Генерирует рандомное число в диапазоне (Максимум и минимум включаются)
@@ -118,7 +116,7 @@ var generateRandomPhotoArray = function (array) {
 var generateAdverts = function (adsAmount) {
   var adverts = [];
   for (var i = 0; i < adsAmount; i++) {
-    var randomX = getRandomNumber(MapSize.WIDTH_MIN, MapSize.WIDTH_MAX - PIN_WIDTH);
+    var randomX = getRandomNumber(MapSize.WIDTH_MIN, MapSize.WIDTH_MAX);
     var randomY = getRandomNumber(MapSize.HEIGHT_MIN, MapSize.HEIGHT_MAX);
     adverts.push({
       author: {
@@ -207,9 +205,8 @@ var renderCard = function (card) {
   var elemPhoto = cardElement.querySelector('.popup__photo');
   var elemPhotos = cardElement.querySelector('.popup__photos');
   if (card.offer.photos) {
-    if (card.offer.photos.length === 1) {
-      elemPhoto.src = card.offer.photos[0];
-    } else {
+    elemPhoto.src = card.offer.photos[0];
+    if (card.offer.photos.length !== 1) {
       elemPhoto.src = card.offer.photos[0];
       for (var i = 1; i < card.offer.photos.length; i++) {
         var clonePhoto = elemPhoto.cloneNode(true);
@@ -243,7 +240,7 @@ var renderPin = function (card) {
   .content
   .querySelector('.map__pin');
   var cardElement = cardTemplate.cloneNode(true);
-  cardElement.style = 'left: ' + (card.location.x + PIN_WIDTH / 2) + 'px; top: ' + (card.location.y + PIN_HEIGHT) + 'px;';
+  cardElement.style = 'left: ' + card.location.x + 'px; top: ' + card.location.y + 'px;';
   cardElement.children[0].src = card.author.avatar;
   cardElement.children[0].alt = card.offer.title;
   return cardElement;
