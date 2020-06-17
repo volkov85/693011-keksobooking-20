@@ -10,12 +10,12 @@ var OFFER_TITLE = [
 ];
 var OFFER_PRICE_MIN = 100;
 var OFFER_PRICE_MAX = 10000;
-var OFFER_TYPE = [
-  'palace',
-  'flat',
-  'house',
-  'bungalo'
-];
+var OfferType = {
+  palace: 'Дворец',
+  flat: 'Квартира',
+  house: 'Дом',
+  bungalo: 'Бунгало'
+};
 var OFFER_ROOMS_MIN = 1;
 var OFFER_ROOMS_MAX = 10;
 var OFFER_GUESTS_MIN = 1;
@@ -44,7 +44,7 @@ var OFFER_PHOTOS = [
   'http://o0.github.io/assets/images/tokyo/hotel2.jpg',
   'http://o0.github.io/assets/images/tokyo/hotel3.jpg'
 ];
-var MAP_SIZE = {
+var MapSize = {
   WIDTH_MIN: 0,
   WIDTH_MAX: 1200,
   HEIGHT_MIN: 130,
@@ -118,8 +118,8 @@ var generateRandomPhotoArray = function (array) {
 var generateAdverts = function (adsAmount) {
   var adverts = [];
   for (var i = 0; i < adsAmount; i++) {
-    var randomX = getRandomNumber(MAP_SIZE.WIDTH_MIN, MAP_SIZE.WIDTH_MAX - PIN_WIDTH);
-    var randomY = getRandomNumber(MAP_SIZE.HEIGHT_MIN, MAP_SIZE.HEIGHT_MAX);
+    var randomX = getRandomNumber(MapSize.WIDTH_MIN, MapSize.WIDTH_MAX - PIN_WIDTH);
+    var randomY = getRandomNumber(MapSize.HEIGHT_MIN, MapSize.HEIGHT_MAX);
     adverts.push({
       author: {
         avatar: 'img/avatars/user0' + (i + 1) + '.png'
@@ -128,7 +128,7 @@ var generateAdverts = function (adsAmount) {
         title: getRandomElementFromArray(OFFER_TITLE),
         address: randomX + ', ' + randomY,
         price: getRandomNumber(OFFER_PRICE_MIN, OFFER_PRICE_MAX),
-        type: getRandomElementFromArray(OFFER_TYPE),
+        type: getRandomElementFromArray(Object.keys(OfferType)),
         rooms: getRandomNumber(OFFER_ROOMS_MIN, OFFER_ROOMS_MAX),
         guests: getRandomNumber(OFFER_GUESTS_MIN, OFFER_GUESTS_MAX),
         checkin: getRandomElementFromArray(OFFER_CHECKIN_OUT),
@@ -188,24 +188,6 @@ var renderCard = function (card) {
   .querySelector('.map__card');
   var cardElement = cardTemplate.cloneNode(true);
 
-  var correctOfferType = '';
-  switch (card.offer.type) {
-    case 'palace':
-      correctOfferType = 'Дворец';
-      break;
-    case 'house':
-      correctOfferType = 'Дом';
-      break;
-    case 'bungalo':
-      correctOfferType = 'Бунгало';
-      break;
-    case 'flat':
-      correctOfferType = 'Квартира';
-      break;
-    default:
-      correctOfferType = 'Не задан тип жилья, либо некорректен';
-  }
-
   var elemFeatures = cardElement.querySelectorAll('.popup__feature');
   card.offer.features.forEach(function (item) {
     for (var i = 0; i < elemFeatures.length; i++) {
@@ -244,7 +226,7 @@ var renderCard = function (card) {
   cardElement.querySelector('.popup__text--address').textContent = card.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = '';
   cardElement.querySelector('.popup__text--price').insertAdjacentHTML('beforeend', card.offer.price + '&#x20bd;<span>/ночь</span>');
-  cardElement.querySelector('.popup__type').textContent = correctOfferType;
+  cardElement.querySelector('.popup__type').textContent = OfferType[card.offer.type];
   cardElement.querySelector('.popup__text--capacity').textContent = card.offer.rooms + ' комнат' + pluralizeRus(card.offer.rooms, ['а', 'ы', '']) + ' для ' + card.offer.guests + ' гост' + pluralizeRus(card.offer.guests, ['я', 'ей', 'ей']);
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + card.offer.checkin + ', выезд до ' + card.offer.checkout;
   cardElement.querySelector('.popup__description').textContent = card.offer.description;
