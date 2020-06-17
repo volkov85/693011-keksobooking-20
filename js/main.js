@@ -50,7 +50,15 @@ var MapSize = {
   HEIGHT_MIN: 130,
   HEIGHT_MAX: 630
 };
-
+// var PinSize = {
+//   WIDTH: 50,
+//   HEIGHT: 70
+// };
+var MainPinSize = {
+  WIDTH: 65,
+  HEIGHT: 65,
+  TRIANGLE_HEIGHT: 22
+};
 /**
  * Генерирует рандомное число в диапазоне (Максимум и минимум включаются)
  * @param  {number} min - от какого числа
@@ -155,11 +163,20 @@ var setActiveState = function (flag) {
   var mapFeatures = document.querySelector('.map__features');
   var adFormHeader = document.querySelector('.ad-form-header');
   var adFormElement = document.querySelectorAll('.ad-form__element');
+  var adverts = generateAdverts(ADVERTS_AMOUNT);
+  var mapPinMain = document.querySelector('.map__pin--main');
+  var inputAddress = document.querySelector('#address');
+  var correctCenterX = Math.round(MapSize.WIDTH_MAX / 2 - MainPinSize.WIDTH / 2);
+  var correctCenterY = Math.round((MapSize.HEIGHT_MAX / 2 - MainPinSize.HEIGHT / 2) + MapSize.HEIGHT_MIN);
+  var correctCenterYTriangle = correctCenterY - MainPinSize.TRIANGLE_HEIGHT;
   if (flag) {
+    pushPins(adverts);
     map.classList.remove('map--faded');
     adForm.classList.remove('ad-form--disabled');
     mapFeatures.removeAttribute('disabled');
     adFormHeader.removeAttribute('disabled');
+    mapPinMain.style.top = correctCenterYTriangle + 'px';
+    inputAddress.value = correctCenterX + ', ' + correctCenterYTriangle;
     for (var i = 0; i < mapFilter.length; i++) {
       mapFilter[i].removeAttribute('disabled');
     }
@@ -171,11 +188,20 @@ var setActiveState = function (flag) {
     adForm.classList.add('ad-form--disabled');
     mapFeatures.setAttribute('disabled', true);
     adFormHeader.setAttribute('disabled', true);
+    mapPinMain.style.left = correctCenterX + 'px';
+    mapPinMain.style.top = correctCenterY + 'px';
+    inputAddress.value = correctCenterX + ', ' + correctCenterY;
     for (var j = 0; j < mapFilter.length; j++) {
       mapFilter[j].setAttribute('disabled', true);
     }
     for (j = 0; j < adFormElement.length; j++) {
       adFormElement[j].setAttribute('disabled', true);
+    }
+    var pins = document.querySelectorAll('.map__pin');
+    for (j = 0; j < pins.length; j++) {
+      if (!pins[j].matches('.map__pin--main')) {
+        pins[j].remove();
+      }
     }
   }
 };
@@ -292,7 +318,18 @@ var pushPins = function (adverts) {
   listElement.appendChild(fragment);
 };
 
-var adverts = generateAdverts(ADVERTS_AMOUNT);
 setActiveState(false);
 // pushCard(adverts[0]);
-pushPins(adverts);
+
+var mapPinMain = document.querySelector('.map__pin--main');
+mapPinMain.addEventListener('mousedown', function (evt) {
+  if (evt.button === 0) {
+    setActiveState(true);
+  }
+});
+
+mapPinMain.addEventListener('keydown', function (evt) {
+  if (evt.key === 'Enter') {
+    setActiveState(true);
+  }
+});
