@@ -148,87 +148,110 @@ var generateAdverts = function (adsAmount) {
  * Переключает карту из неактивного состояния в активное и наоборот
  * @param  {boolean} flag - true - активировать карту, false - деактивировать
  */
-var mapVisibility = function (flag) {
-  var MAP = document.querySelector('.map');
+var setActiveState = function (flag) {
+  var map = document.querySelector('.map');
+  var adForm = document.querySelector('.ad-form');
+  var mapFilter = document.querySelectorAll('.map__filter');
+  var mapFeatures = document.querySelector('.map__features');
+  var adFormHeader = document.querySelector('.ad-form-header');
+  var adFormElement = document.querySelectorAll('.ad-form__element');
   if (flag) {
-    MAP.classList.add('map--faded');
+    map.classList.remove('map--faded');
+    adForm.classList.remove('ad-form--disabled');
+    mapFeatures.removeAttribute('disabled');
+    adFormHeader.removeAttribute('disabled');
+    for (var i = 0; i < mapFilter.length; i++) {
+      mapFilter[i].removeAttribute('disabled');
+    }
+    for (i = 0; i < adFormElement.length; i++) {
+      adFormElement[i].removeAttribute('disabled');
+    }
   } else {
-    MAP.classList.remove('map--faded');
+    map.classList.add('map--faded');
+    adForm.classList.add('ad-form--disabled');
+    mapFeatures.setAttribute('disabled', true);
+    adFormHeader.setAttribute('disabled', true);
+    for (var j = 0; j < mapFilter.length; j++) {
+      mapFilter[j].setAttribute('disabled', true);
+    }
+    for (j = 0; j < adFormElement.length; j++) {
+      adFormElement[j].setAttribute('disabled', true);
+    }
   }
 };
 
-/**
- * Функция плюрализации для русского языка
- * @param {number} n - число, после которого нужно склонять существительное
- * @param {Array} forms - массив окончаний для склоняемого существительного
- * @return {string} - необходимое окончание для существительного
- */
-function pluralizeRus(n, forms) {
-  var ending = '';
-  if (n % 10 === 1 && n % 100 !== 11) {
-    ending = forms[0];
-  } else if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) {
-    ending = forms[1];
-  } else {
-    ending = forms[2];
-  }
-  return ending;
-}
+// /**
+//  * Функция плюрализации для русского языка
+//  * @param {number} n - число, после которого нужно склонять существительное
+//  * @param {Array} forms - массив окончаний для склоняемого существительного
+//  * @return {string} - необходимое окончание для существительного
+//  */
+// function pluralizeRus(n, forms) {
+//   var ending = '';
+//   if (n % 10 === 1 && n % 100 !== 11) {
+//     ending = forms[0];
+//   } else if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) {
+//     ending = forms[1];
+//   } else {
+//     ending = forms[2];
+//   }
+//   return ending;
+// }
 
-/**
- * Создание DOM элемента по шаблону #card на основе JS объекта
- * @param  {Array} card - массив объектов, содержащий сгенерированные данные для карточки
- * @return {Object} cardElement - клон элемента map__card с содержимым из массива card
- */
-var renderCard = function (card) {
-  var cardTemplate = document.querySelector('#card')
-  .content
-  .querySelector('.map__card');
-  var cardElement = cardTemplate.cloneNode(true);
+// /**
+//  * Создание DOM элемента по шаблону #card на основе JS объекта
+//  * @param  {Array} card - массив объектов, содержащий сгенерированные данные для карточки
+//  * @return {Object} cardElement - клон элемента map__card с содержимым из массива card
+//  */
+// var renderCard = function (card) {
+//   var cardTemplate = document.querySelector('#card')
+//   .content
+//   .querySelector('.map__card');
+//   var cardElement = cardTemplate.cloneNode(true);
 
-  var elemFeatures = cardElement.querySelectorAll('.popup__feature');
-  card.offer.features.forEach(function (item) {
-    for (var i = 0; i < elemFeatures.length; i++) {
-      if (elemFeatures[i].classList.contains('popup__feature--' + item)) {
-        elemFeatures[i].classList.toggle('holdIt');
-      }
-    }
-  });
-  elemFeatures.forEach(function (item) {
-    if (!item.classList.contains('holdIt')) {
-      item.remove();
-    } else {
-      item.classList.remove('holdIt');
-    }
-  });
+//   var elemFeatures = cardElement.querySelectorAll('.popup__feature');
+//   card.offer.features.forEach(function (item) {
+//     for (var i = 0; i < elemFeatures.length; i++) {
+//       if (elemFeatures[i].classList.contains('popup__feature--' + item)) {
+//         elemFeatures[i].classList.toggle('holdIt');
+//       }
+//     }
+//   });
+//   elemFeatures.forEach(function (item) {
+//     if (!item.classList.contains('holdIt')) {
+//       item.remove();
+//     } else {
+//       item.classList.remove('holdIt');
+//     }
+//   });
 
-  var elemPhoto = cardElement.querySelector('.popup__photo');
-  var elemPhotos = cardElement.querySelector('.popup__photos');
-  if (card.offer.photos) {
-    elemPhoto.src = card.offer.photos[0];
-    if (card.offer.photos.length !== 1) {
-      elemPhoto.src = card.offer.photos[0];
-      for (var i = 1; i < card.offer.photos.length; i++) {
-        var clonePhoto = elemPhoto.cloneNode(true);
-        clonePhoto.src = card.offer.photos[i];
-        elemPhotos.appendChild(clonePhoto);
-      }
-    }
-  } else {
-    elemPhoto.remove();
-  }
+//   var elemPhoto = cardElement.querySelector('.popup__photo');
+//   var elemPhotos = cardElement.querySelector('.popup__photos');
+//   if (card.offer.photos) {
+//     elemPhoto.src = card.offer.photos[0];
+//     if (card.offer.photos.length !== 1) {
+//       elemPhoto.src = card.offer.photos[0];
+//       for (var i = 1; i < card.offer.photos.length; i++) {
+//         var clonePhoto = elemPhoto.cloneNode(true);
+//         clonePhoto.src = card.offer.photos[i];
+//         elemPhotos.appendChild(clonePhoto);
+//       }
+//     }
+//   } else {
+//     elemPhoto.remove();
+//   }
 
-  cardElement.querySelector('.popup__avatar').src = card.author.avatar;
-  cardElement.querySelector('.popup__title').textContent = card.offer.title;
-  cardElement.querySelector('.popup__text--address').textContent = card.offer.address;
-  cardElement.querySelector('.popup__text--price').textContent = '';
-  cardElement.querySelector('.popup__text--price').insertAdjacentHTML('beforeend', card.offer.price + '&#x20bd;<span>/ночь</span>');
-  cardElement.querySelector('.popup__type').textContent = OfferType[card.offer.type];
-  cardElement.querySelector('.popup__text--capacity').textContent = card.offer.rooms + ' комнат' + pluralizeRus(card.offer.rooms, ['а', 'ы', '']) + ' для ' + card.offer.guests + ' гост' + pluralizeRus(card.offer.guests, ['я', 'ей', 'ей']);
-  cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + card.offer.checkin + ', выезд до ' + card.offer.checkout;
-  cardElement.querySelector('.popup__description').textContent = card.offer.description;
-  return cardElement;
-};
+//   cardElement.querySelector('.popup__avatar').src = card.author.avatar;
+//   cardElement.querySelector('.popup__title').textContent = card.offer.title;
+//   cardElement.querySelector('.popup__text--address').textContent = card.offer.address;
+//   cardElement.querySelector('.popup__text--price').textContent = '';
+//   cardElement.querySelector('.popup__text--price').insertAdjacentHTML('beforeend', card.offer.price + '&#x20bd;<span>/ночь</span>');
+//   cardElement.querySelector('.popup__type').textContent = OfferType[card.offer.type];
+//   cardElement.querySelector('.popup__text--capacity').textContent = card.offer.rooms + ' комнат' + pluralizeRus(card.offer.rooms, ['а', 'ы', '']) + ' для ' + card.offer.guests + ' гост' + pluralizeRus(card.offer.guests, ['я', 'ей', 'ей']);
+//   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + card.offer.checkin + ', выезд до ' + card.offer.checkout;
+//   cardElement.querySelector('.popup__description').textContent = card.offer.description;
+//   return cardElement;
+// };
 
 /**
  * Создание DOM элемента по шаблону #pin на основе JS объекта
@@ -246,15 +269,15 @@ var renderPin = function (card) {
   return cardElement;
 };
 
-/**
- * Заполнение блока card DOM-элементами на основе массива JS-объектов
- * @param  {Array} advert - элемент массива объектов, содержащий сгенерированные данные для карточки
- */
-var pushCard = function (advert) {
-  var listElement = document.querySelector('.map');
-  var filterElement = document.querySelector('.map__filters-container');
-  listElement.insertBefore(renderCard(advert), filterElement);
-};
+// /**
+//  * Заполнение блока card DOM-элементами на основе массива JS-объектов
+//  * @param  {Array} advert - элемент массива объектов, содержащий сгенерированные данные для карточки
+//  */
+// var pushCard = function (advert) {
+//   var listElement = document.querySelector('.map');
+//   var filterElement = document.querySelector('.map__filters-container');
+//   listElement.insertBefore(renderCard(advert), filterElement);
+// };
 
 /**
  * Заполнение блока pins DOM-элементами на основе массива JS-объектов
@@ -270,6 +293,6 @@ var pushPins = function (adverts) {
 };
 
 var adverts = generateAdverts(ADVERTS_AMOUNT);
-mapVisibility(true);
-pushCard(adverts[0]);
+setActiveState(false);
+// pushCard(adverts[0]);
 pushPins(adverts);
