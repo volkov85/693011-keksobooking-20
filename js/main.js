@@ -153,6 +153,90 @@ var generateAdverts = function (adsAmount) {
 };
 
 /**
+ * Акивирует страницу при клике левой кнопкой мыши
+ * @param {Object} evt - Событие при клике мыши
+ */
+var onMousePressActivate = function (evt) {
+  if (evt.button === 0) {
+    setActiveState(true);
+  }
+};
+
+/**
+ * Акивирует страницу при нажатии клавиши Enter
+ * @param {Object} evt - Событие при нажатии клавиши
+ */
+var onKeyPressActivate = function (evt) {
+  if (evt.key === 'Enter') {
+    setActiveState(true);
+  }
+};
+
+/**
+ * Синхронизация значений полей комнат и гостей
+ * @param {Object} node - параметр либо node.value для стартовой синхронизации, либо node.target.value при изменении значения поля
+ */
+var checkValidation = function (node) {
+  var inputCapacity = document.querySelector('#capacity');
+  var capacity = document.querySelectorAll('#capacity > option');
+  switch (node) {
+    case '1':
+      capacity.forEach(function (item) {
+        if (item.value !== '1') {
+          item.setAttribute('disabled', true);
+        } else {
+          item.removeAttribute('disabled');
+          inputCapacity.value = '1';
+        }
+      });
+      break;
+    case '2':
+      capacity.forEach(function (item) {
+        if (item.value !== '1' && item.value !== '2') {
+          item.setAttribute('disabled', true);
+        } else {
+          item.removeAttribute('disabled');
+          inputCapacity.value = '2';
+        }
+      });
+      break;
+    case '3':
+      capacity.forEach(function (item) {
+        if (item.value === '0') {
+          item.setAttribute('disabled', true);
+        } else {
+          item.removeAttribute('disabled');
+          inputCapacity.value = '3';
+        }
+      });
+      break;
+    case '100':
+      capacity.forEach(function (item) {
+        if (item.value !== '0') {
+          item.setAttribute('disabled', true);
+        } else {
+          item.removeAttribute('disabled');
+          inputCapacity.value = '0';
+        }
+      });
+      break;
+  }
+};
+
+/**
+ * Запускает валидацию либо при активации страницы, либо при изменении поля
+ * @param {Object} node - поле, которое нужно валидировать
+ * @param {boolean} submit - флаг для валидации либо при активации страницы, либо при изменении поля
+ */
+var setValidation = function (node, submit) {
+  if (!submit) {
+    checkValidation(node.target.value);
+  } else {
+    checkValidation(node.value);
+  }
+};
+
+/**
  * Переключает страницу из неактивного состояния в активное и наоборот
  * @param  {boolean} flag - true - активировать страницу, false - деактивировать
  */
@@ -169,40 +253,44 @@ var setActiveState = function (flag) {
   var activeX = Math.round(Number(mapPinMain.style.left.slice(0, mapPinMain.style.left.length - 2)) + MainPinSize.WIDTH / 2);
   var activeY = Math.round(Number(mapPinMain.style.top.slice(0, mapPinMain.style.top.length - 2)) + MainPinSize.TRIANGLE_HEIGHT);
   var noneActiveY = Math.round(Number(mapPinMain.style.top.slice(0, mapPinMain.style.top.length - 2)) - MainPinSize.HEIGHT / 2);
+  var inputRoomNumber = document.querySelector('#room_number');
   if (flag) {
     pushPins(adverts);
+    setValidation(inputRoomNumber, true);
     map.classList.remove('map--faded');
     adForm.classList.remove('ad-form--disabled');
     mapFeatures.removeAttribute('disabled');
     adFormHeader.removeAttribute('disabled');
     inputAddress.value = activeX + ', ' + activeY;
-    for (var i = 0; i < mapFilter.length; i++) {
-      mapFilter[i].removeAttribute('disabled');
-    }
-    for (i = 0; i < adFormElement.length; i++) {
-      adFormElement[i].removeAttribute('disabled');
-    }
+    mapFilter.forEach(function (item) {
+      item.removeAttribute('disabled');
+    });
+    adFormElement.forEach(function (item) {
+      item.removeAttribute('disabled');
+    });
     inputAddress.setAttribute('disabled', true);
     mapPinMain.removeEventListener('mousedown', onMousePressActivate);
     mapPinMain.removeEventListener('keydown', onKeyPressActivate);
+    inputRoomNumber.addEventListener('change', setValidation);
   } else {
     map.classList.add('map--faded');
     adForm.classList.add('ad-form--disabled');
     mapFeatures.setAttribute('disabled', true);
     adFormHeader.setAttribute('disabled', true);
     inputAddress.value = activeX + ', ' + noneActiveY;
-    for (var j = 0; j < mapFilter.length; j++) {
-      mapFilter[j].setAttribute('disabled', true);
-    }
-    for (j = 0; j < adFormElement.length; j++) {
-      adFormElement[j].setAttribute('disabled', true);
-    }
-    var pins = document.querySelectorAll('.map__pin');
-    for (j = 0; j < pins.length; j++) {
-      if (!pins[j].matches('.map__pin--main')) {
-        pins[j].remove();
-      }
-    }
+    mapFilter.forEach(function (item) {
+      item.setAttribute('disabled', true);
+    });
+    adFormElement.forEach(function (item) {
+      item.setAttribute('disabled', true);
+    });
+    var pins = document.querySelectorAll('.map__pin--main ~ .map__pin');
+    pins.forEach(function (item) {
+      item.remove();
+    });
+    mapPinMain.addEventListener('mousedown', onMousePressActivate);
+    mapPinMain.addEventListener('keydown', onKeyPressActivate);
+    inputRoomNumber.removeEventListener('change', setValidation);
   }
 };
 
@@ -320,39 +408,3 @@ var pushPins = function (adverts) {
 
 setActiveState(false);
 // pushCard(adverts[0]);
-
-/**
- * Акивирует страницу при клике левой кнопкой мыши
- * @param {Object} evt - Событие при клике мыши
- */
-var onMousePressActivate = function (evt) {
-  if (evt.button === 0) {
-    setActiveState(true);
-  }
-};
-
-/**
- * Акивирует страницу при нажатии клавиши Enter
- * @param {Object} evt - Событие при нажатии клавиши
- */
-var onKeyPressActivate = function (evt) {
-  if (evt.key === 'Enter') {
-    setActiveState(true);
-  }
-};
-
-var mapPinMain = document.querySelector('.map__pin--main');
-mapPinMain.addEventListener('mousedown', onMousePressActivate);
-mapPinMain.addEventListener('keydown', onKeyPressActivate);
-
-// var inputRoomNumber = document.querySelector('#room_number');
-// var roomNumber = document.querySelectorAll('#room_number > option');
-
-// var inputCapacity = document.querySelector('#capacity');
-// var capacity = document.querySelectorAll('#capacity > option');
-
-// inputRoomNumber.addEventListener('change', function (evt) {
-//   if (evt.target.value === '1') {
-//     console.log(11111111);
-//   }
-// });
