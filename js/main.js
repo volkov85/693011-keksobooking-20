@@ -134,7 +134,7 @@ var generateAdverts = function (adsAmount) {
         title: getRandomElementFromArray(OFFER_TITLE),
         address: randomX + ', ' + randomY,
         price: getRandomNumber(OFFER_PRICE_MIN, OFFER_PRICE_MAX),
-        type: getRandomElementFromArray(Object.keys(OfferType)),
+        type: getRandomElementFromArray(toString(Object.keys(OfferType)).toLowerCase()),
         rooms: getRandomNumber(OFFER_ROOMS_MIN, OFFER_ROOMS_MAX),
         guests: getRandomNumber(OFFER_GUESTS_MIN, OFFER_GUESTS_MAX),
         checkin: getRandomElementFromArray(OFFER_CHECKIN_OUT),
@@ -153,8 +153,8 @@ var generateAdverts = function (adsAmount) {
 };
 
 /**
- * Переключает карту из неактивного состояния в активное и наоборот
- * @param  {boolean} flag - true - активировать карту, false - деактивировать
+ * Переключает страницу из неактивного состояния в активное и наоборот
+ * @param  {boolean} flag - true - активировать страницу, false - деактивировать
  */
 var setActiveState = function (flag) {
   var map = document.querySelector('.map');
@@ -166,31 +166,31 @@ var setActiveState = function (flag) {
   var adverts = generateAdverts(ADVERTS_AMOUNT);
   var mapPinMain = document.querySelector('.map__pin--main');
   var inputAddress = document.querySelector('#address');
-  var correctCenterX = Math.round(MapSize.WIDTH_MAX / 2 - MainPinSize.WIDTH / 2);
-  var correctCenterY = Math.round((MapSize.HEIGHT_MAX / 2 - MainPinSize.HEIGHT / 2) + MapSize.HEIGHT_MIN);
-  var correctCenterYTriangle = correctCenterY - MainPinSize.TRIANGLE_HEIGHT;
+  var activeX = Math.round(Number(mapPinMain.style.left.slice(0, mapPinMain.style.left.length - 2)) + MainPinSize.WIDTH / 2);
+  var activeY = Math.round(Number(mapPinMain.style.top.slice(0, mapPinMain.style.top.length - 2)) + MainPinSize.TRIANGLE_HEIGHT);
+  var noneActiveY = Math.round(Number(mapPinMain.style.top.slice(0, mapPinMain.style.top.length - 2)) - MainPinSize.HEIGHT / 2);
   if (flag) {
     pushPins(adverts);
     map.classList.remove('map--faded');
     adForm.classList.remove('ad-form--disabled');
     mapFeatures.removeAttribute('disabled');
     adFormHeader.removeAttribute('disabled');
-    mapPinMain.style.top = correctCenterYTriangle + 'px';
-    inputAddress.value = correctCenterX + ', ' + correctCenterYTriangle;
+    inputAddress.value = activeX + ', ' + activeY;
     for (var i = 0; i < mapFilter.length; i++) {
       mapFilter[i].removeAttribute('disabled');
     }
     for (i = 0; i < adFormElement.length; i++) {
       adFormElement[i].removeAttribute('disabled');
     }
+    inputAddress.setAttribute('disabled', true);
+    mapPinMain.removeEventListener('mousedown', onMousePressActivate);
+    mapPinMain.removeEventListener('keydown', onKeyPressActivate);
   } else {
     map.classList.add('map--faded');
     adForm.classList.add('ad-form--disabled');
     mapFeatures.setAttribute('disabled', true);
     adFormHeader.setAttribute('disabled', true);
-    mapPinMain.style.left = correctCenterX + 'px';
-    mapPinMain.style.top = correctCenterY + 'px';
-    inputAddress.value = correctCenterX + ', ' + correctCenterY;
+    inputAddress.value = activeX + ', ' + noneActiveY;
     for (var j = 0; j < mapFilter.length; j++) {
       mapFilter[j].setAttribute('disabled', true);
     }
@@ -321,15 +321,38 @@ var pushPins = function (adverts) {
 setActiveState(false);
 // pushCard(adverts[0]);
 
-var mapPinMain = document.querySelector('.map__pin--main');
-mapPinMain.addEventListener('mousedown', function (evt) {
+/**
+ * Акивирует страницу при клике левой кнопкой мыши
+ * @param {Object} evt - Событие при клике мыши
+ */
+var onMousePressActivate = function (evt) {
   if (evt.button === 0) {
     setActiveState(true);
   }
-});
+};
 
-mapPinMain.addEventListener('keydown', function (evt) {
+/**
+ * Акивирует страницу при нажатии клавиши Enter
+ * @param {Object} evt - Событие при нажатии клавиши
+ */
+var onKeyPressActivate = function (evt) {
   if (evt.key === 'Enter') {
     setActiveState(true);
   }
-});
+};
+
+var mapPinMain = document.querySelector('.map__pin--main');
+mapPinMain.addEventListener('mousedown', onMousePressActivate);
+mapPinMain.addEventListener('keydown', onKeyPressActivate);
+
+// var inputRoomNumber = document.querySelector('#room_number');
+// var roomNumber = document.querySelectorAll('#room_number > option');
+
+// var inputCapacity = document.querySelector('#capacity');
+// var capacity = document.querySelectorAll('#capacity > option');
+
+// inputRoomNumber.addEventListener('change', function (evt) {
+//   if (evt.target.value === '1') {
+//     console.log(11111111);
+//   }
+// });
