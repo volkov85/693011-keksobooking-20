@@ -237,30 +237,6 @@ var setValidation = function (node, submit) {
   }
 };
 
-// /**
-//  * Скрывает или показывает окно-попап детализации объявления
-//  * @param {Object} cards - коллекция всех попапов
-//  * @param {boolean} flag - параметр для зыкрытия или открытия вызвана функция
-//  * @param {Object} evt - в случае открытия попапа передаёт нажатый пин для сравнения индексов
-//  */
-// var setPopupVisibility = function (cards, flag, evt) {
-//   if (!flag) {
-//     cards.forEach(function (item) {
-//       if (item.style.visibility === 'visible') {
-//         item.style.visibility = 'hidden';
-//       }
-//     });
-//   } else {
-//     cards.forEach(function (item) {
-//       if (item.dataset.index === evt.target.dataset.index) {
-//         item.style.visibility = 'visible';
-//       } else {
-//         item.style.visibility = 'hidden';
-//       }
-//     });
-//   }
-// };
-
 /**
  * Переключает страницу из неактивного состояния в активное и наоборот
  * @param  {boolean} flag - true - активировать страницу, false - деактивировать
