@@ -221,7 +221,6 @@ var checkValidation = function (node) {
           inputCapacity.value = '0';
         }
       });
-      break;
   }
 };
 
@@ -238,22 +237,29 @@ var setValidation = function (node, submit) {
   }
 };
 
-/**
- * Акивирует страницу при клике левой кнопкой мыши
- * @param {Object} evt - Событие при клике мыши
- */
-var onMousePinActivate = function (evt) {
-  var cards = document.querySelectorAll('.map__card');
-  if (evt.button === 0) {
-    cards.forEach(function (item) {
-      if (item.dataset.index === evt.target.dataset.index) {
-        item.style.visibility = 'visible';
-      } else {
-        item.style.visibility = 'hidden';
-      }
-    });
-  }
-};
+// /**
+//  * Скрывает или показывает окно-попап детализации объявления
+//  * @param {Object} cards - коллекция всех попапов
+//  * @param {boolean} flag - параметр для зыкрытия или открытия вызвана функция
+//  * @param {Object} evt - в случае открытия попапа передаёт нажатый пин для сравнения индексов
+//  */
+// var setPopupVisibility = function (cards, flag, evt) {
+//   if (!flag) {
+//     cards.forEach(function (item) {
+//       if (item.style.visibility === 'visible') {
+//         item.style.visibility = 'hidden';
+//       }
+//     });
+//   } else {
+//     cards.forEach(function (item) {
+//       if (item.dataset.index === evt.target.dataset.index) {
+//         item.style.visibility = 'visible';
+//       } else {
+//         item.style.visibility = 'hidden';
+//       }
+//     });
+//   }
+// };
 
 /**
  * Переключает страницу из неактивного состояния в активное и наоборот
@@ -277,6 +283,62 @@ var setActiveState = function (flag) {
     pushPins(adverts);
     setValidation(inputRoomNumber, true);
     pushCard(adverts);
+    var cards = document.querySelectorAll('.map__card');
+    var popupClose = document.querySelectorAll('.popup__close');
+
+    /**
+     * Скрытие окна-попапа и удаление слушателя событий
+     * @param {Object} items - коллекция всех карточек-попапов
+     */
+    var closePopup = function (items) {
+      items.forEach(function (item) {
+        if (item.style.visibility === 'visible') {
+          item.style.visibility = 'hidden';
+        }
+      });
+      document.removeEventListener('keydown', onPopupEscPress);
+    };
+
+    /**
+     * Проверка на клавишу ESC и запуск функции скрытия окна
+     * @param {Object} evt - нажатая клавиша
+     */
+    var onPopupEscPress = function (evt) {
+      if (evt.key === 'Escape') {
+        evt.preventDefault();
+        closePopup(cards);
+      }
+    };
+
+    /**
+     * Поиск нужной карточки, открытие и запуск слушателя событий на ESC
+     * @param {Object} items - коллекция всех карточек-попапов
+     * @param {Object} evt - нажатый пин для сравнения индексов
+     */
+    var openPopup = function (items, evt) {
+      items.forEach(function (item) {
+        if (item.dataset.index === evt.target.dataset.index) {
+          item.style.visibility = 'visible';
+        } else {
+          item.style.visibility = 'hidden';
+        }
+      });
+      document.addEventListener('keydown', onPopupEscPress);
+    };
+
+    popupClose.forEach(function (popup) {
+      popup.addEventListener('mousedown', function (evt) {
+        if (evt.button === 0) {
+          closePopup(cards);
+        }
+      });
+      popup.addEventListener('keydown', function (evt) {
+        if (evt.key === 'Enter') {
+          closePopup(cards);
+        }
+      });
+    });
+
     map.classList.remove('map--faded');
     adForm.classList.remove('ad-form--disabled');
     mapFeatures.removeAttribute('disabled');
@@ -293,8 +355,17 @@ var setActiveState = function (flag) {
     mapPinMain.removeEventListener('keydown', onKeyPressActivate);
     inputRoomNumber.addEventListener('change', setValidation);
     pins = document.querySelectorAll('.map__pin--main ~ .map__pin');
-    pins.forEach(function (item) {
-      item.addEventListener('mousedown', onMousePinActivate);
+    pins.forEach(function (pin) {
+      pin.addEventListener('mousedown', function (evt) {
+        if (evt.button === 0) {
+          openPopup(cards, evt);
+        }
+      });
+      pin.addEventListener('keydown', function (evt) {
+        if (evt.key === 'Enter') {
+          openPopup(cards, evt);
+        }
+      });
     });
   } else {
     map.classList.add('map--faded');
@@ -312,9 +383,14 @@ var setActiveState = function (flag) {
     pins.forEach(function (item) {
       item.remove();
     });
+    cards = document.querySelectorAll('.map__card');
+    cards.forEach(function (item) {
+      item.remove();
+    });
     mapPinMain.addEventListener('mousedown', onMousePressActivate);
     mapPinMain.addEventListener('keydown', onKeyPressActivate);
     inputRoomNumber.removeEventListener('change', setValidation);
+    document.removeEventListener('keydown', onPopupEscPress);
   }
 };
 
