@@ -16,6 +16,12 @@ var OfferType = {
   HOUSE: 'Дом',
   BUNGALO: 'Бунгало'
 };
+var OfferPrice = {
+  PALACE: 10000,
+  FLAT: 1000,
+  HOUSE: 5000,
+  BUNGALO: 0
+};
 var OFFER_ROOMS_MIN = 1;
 var OFFER_ROOMS_MAX = 10;
 var OFFER_GUESTS_MIN = 1;
@@ -178,7 +184,7 @@ var onKeyPressActivate = function (evt) {
  * Синхронизация значений полей комнат и гостей
  * @param {Object} node - параметр либо node.value для стартовой синхронизации, либо node.target.value при изменении значения поля
  */
-var checkValidation = function (node) {
+var checkValidationRooms = function (node) {
   var inputCapacity = document.querySelector('#capacity');
   var capacity = document.querySelectorAll('#capacity > option');
   switch (node) {
@@ -225,15 +231,31 @@ var checkValidation = function (node) {
 };
 
 /**
+ * Синхронизация значений полей типа жилья и цены
+ * @param {Object} node - параметр либо node.value для стартовой синхронизации, либо node.target.value при изменении значения поля
+ */
+var checkValidationPrice = function (node) {
+  var inputPrice = document.querySelector('#price');
+  Array.from(Object.keys(OfferPrice)).forEach(function (item) {
+    if (item.toLowerCase() === node) {
+      inputPrice.placeholder = OfferPrice[item];
+      inputPrice.min = OfferPrice[item];
+    }
+  });
+};
+
+/**
  * Запускает валидацию либо при активации страницы, либо при изменении поля
  * @param {Object} node - поле, которое нужно валидировать
  * @param {boolean} submit - флаг для валидации либо при активации страницы, либо при изменении поля
  */
 var setValidation = function (node, submit) {
   if (!submit) {
-    checkValidation(node.target.value);
+    checkValidationRooms(node.target.value);
+    checkValidationPrice(node.target.value);
   } else {
-    checkValidation(node.value);
+    checkValidationRooms(node.value);
+    checkValidationPrice(node.value);
   }
 };
 
@@ -254,10 +276,12 @@ var setActiveState = function (flag) {
   var activeY = Math.round(Number(mapPinMain.style.top.slice(0, mapPinMain.style.top.length - 2)) + MainPinSize.TRIANGLE_HEIGHT);
   var noneActiveY = Math.round(Number(mapPinMain.style.top.slice(0, mapPinMain.style.top.length - 2)) - MainPinSize.HEIGHT / 2);
   var inputRoomNumber = document.querySelector('#room_number');
+  var inputRoomType = document.querySelector('#type');
   if (flag) {
     var adverts = generateAdverts(ADVERTS_AMOUNT);
     pushPins(adverts);
     setValidation(inputRoomNumber, true);
+    setValidation(inputRoomType, true);
     pushCard(adverts);
     var cards = document.querySelectorAll('.map__card');
     var popupClose = document.querySelectorAll('.popup__close');
@@ -330,6 +354,7 @@ var setActiveState = function (flag) {
     mapPinMain.removeEventListener('mousedown', onMousePressActivate);
     mapPinMain.removeEventListener('keydown', onKeyPressActivate);
     inputRoomNumber.addEventListener('change', setValidation);
+    inputRoomType.addEventListener('change', setValidation);
     pins = document.querySelectorAll('.map__pin--main ~ .map__pin');
     pins.forEach(function (pin) {
       pin.addEventListener('mousedown', function (evt) {
@@ -366,6 +391,7 @@ var setActiveState = function (flag) {
     mapPinMain.addEventListener('mousedown', onMousePressActivate);
     mapPinMain.addEventListener('keydown', onKeyPressActivate);
     inputRoomNumber.removeEventListener('change', setValidation);
+    inputRoomType.removeEventListener('change', setValidation);
     document.removeEventListener('keydown', onPopupEscPress);
   }
 };
