@@ -245,6 +245,25 @@ var checkValidationPrice = function (node) {
 };
 
 /**
+ * Синхронизация значений полей время заезда и выезда
+ * @param {Object} node - параметр либо node.value для стартовой синхронизации, либо node.target.value при изменении значения поля
+ * @param {boolean} flag - флаг, отвечающий за изменение времени заезда, либо времени выезда
+ */
+var checkValidationTime = function (node, flag) {
+  var inputTimeOut = document.querySelector('#timeout');
+  var inputTimeIn = document.querySelector('#timein');
+  OFFER_CHECKIN_OUT.forEach(function (item) {
+    if (item === node) {
+      if (flag) {
+        inputTimeOut.value = item;
+      } else {
+        inputTimeIn.value = item;
+      }
+    }
+  });
+};
+
+/**
  * Запускает валидацию либо при активации страницы, либо при изменении поля
  * @param {Object} node - поле, которое нужно валидировать
  * @param {boolean} submit - флаг для валидации либо при активации страницы, либо при изменении поля
@@ -253,9 +272,15 @@ var setValidation = function (node, submit) {
   if (!submit) {
     checkValidationRooms(node.target.value);
     checkValidationPrice(node.target.value);
+    if (document.activeElement.id === 'timein') {
+      checkValidationTime(node.target.value, true);
+    } else {
+      checkValidationTime(node.target.value, false);
+    }
   } else {
     checkValidationRooms(node.value);
     checkValidationPrice(node.value);
+    checkValidationTime(node.value, true);
   }
 };
 
@@ -277,11 +302,14 @@ var setActiveState = function (flag) {
   var noneActiveY = Math.round(Number(mapPinMain.style.top.slice(0, mapPinMain.style.top.length - 2)) - MainPinSize.HEIGHT / 2);
   var inputRoomNumber = document.querySelector('#room_number');
   var inputRoomType = document.querySelector('#type');
+  var inputTimeIn = document.querySelector('#timein');
+  var inputTimeOut = document.querySelector('#timeout');
   if (flag) {
     var adverts = generateAdverts(ADVERTS_AMOUNT);
     pushPins(adverts);
     setValidation(inputRoomNumber, true);
     setValidation(inputRoomType, true);
+    setValidation(inputTimeIn, true);
     pushCard(adverts);
     var cards = document.querySelectorAll('.map__card');
     var popupClose = document.querySelectorAll('.popup__close');
@@ -350,11 +378,13 @@ var setActiveState = function (flag) {
     adFormElement.forEach(function (item) {
       item.removeAttribute('disabled');
     });
-    inputAddress.setAttribute('disabled', true);
+    inputAddress.setAttribute('readonly', true);
     mapPinMain.removeEventListener('mousedown', onMousePressActivate);
     mapPinMain.removeEventListener('keydown', onKeyPressActivate);
     inputRoomNumber.addEventListener('change', setValidation);
     inputRoomType.addEventListener('change', setValidation);
+    inputTimeIn.addEventListener('change', setValidation);
+    inputTimeOut.addEventListener('change', setValidation);
     pins = document.querySelectorAll('.map__pin--main ~ .map__pin');
     pins.forEach(function (pin) {
       pin.addEventListener('mousedown', function (evt) {
@@ -392,6 +422,8 @@ var setActiveState = function (flag) {
     mapPinMain.addEventListener('keydown', onKeyPressActivate);
     inputRoomNumber.removeEventListener('change', setValidation);
     inputRoomType.removeEventListener('change', setValidation);
+    inputTimeIn.removeEventListener('change', setValidation);
+    inputTimeOut.removeEventListener('change', setValidation);
     document.removeEventListener('keydown', onPopupEscPress);
   }
 };
