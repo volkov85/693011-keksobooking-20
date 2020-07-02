@@ -12,6 +12,19 @@ window.form = (function () {
     '13:00',
     '14:00'
   ];
+  var Rooms = {
+    ONE_ROOM: '1',
+    TWO_RROMS: '2',
+    THREE_ROOMS: '3',
+    ONE_HUNDRET_ROOMS: '100'
+  };
+  var Capacity = {
+    ONE_GUEST: '1',
+    TWO_GUESTS: '2',
+    THREE_GUESTS: '3',
+    NO_GUESTS: '0'
+  };
+
   /**
    * Синхронизация значений полей комнат и гостей
    * @param {Object} node - параметр либо node.value для стартовой синхронизации, либо node.target.value при изменении значения поля
@@ -20,43 +33,43 @@ window.form = (function () {
     var inputCapacity = document.querySelector('#capacity');
     var capacity = document.querySelectorAll('#capacity > option');
     switch (node) {
-      case '1':
+      case Rooms.ONE_ROOM:
         capacity.forEach(function (item) {
-          if (item.value !== '1') {
+          if (item.value !== Capacity.ONE_GUEST) {
             item.setAttribute('disabled', true);
           } else {
             item.removeAttribute('disabled');
-            inputCapacity.value = '1';
+            inputCapacity.value = Capacity.ONE_GUEST;
           }
         });
         break;
-      case '2':
+      case Rooms.TWO_RROMS:
         capacity.forEach(function (item) {
-          if (item.value !== '1' && item.value !== '2') {
+          if (item.value !== Capacity.ONE_GUEST && item.value !== Capacity.TWO_GUESTS) {
             item.setAttribute('disabled', true);
           } else {
             item.removeAttribute('disabled');
-            inputCapacity.value = '2';
+            inputCapacity.value = Capacity.TWO_GUESTS;
           }
         });
         break;
-      case '3':
+      case Rooms.THREE_ROOMS:
         capacity.forEach(function (item) {
-          if (item.value === '0') {
+          if (item.value === Capacity.NO_GUESTS) {
             item.setAttribute('disabled', true);
           } else {
             item.removeAttribute('disabled');
-            inputCapacity.value = '3';
+            inputCapacity.value = Capacity.THREE_GUESTS;
           }
         });
         break;
-      case '100':
+      case Rooms.ONE_HUNDRET_ROOMS:
         capacity.forEach(function (item) {
-          if (item.value !== '0') {
+          if (item.value !== Capacity.NO_GUESTS) {
             item.setAttribute('disabled', true);
           } else {
             item.removeAttribute('disabled');
-            inputCapacity.value = '0';
+            inputCapacity.value = Capacity.NO_GUESTS;
           }
         });
     }

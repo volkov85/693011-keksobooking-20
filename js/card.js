@@ -25,7 +25,7 @@ window.card = (function () {
      * @param  {Array} card - массив объектов, содержащий сгенерированные данные для карточки
      * @return {Object} cardElement - клон элемента map__card с содержимым из массива card
      */
-    renderCard: function (card) {
+    render: function (card) {
       var OfferType = {
         PALACE: 'Дворец',
         FLAT: 'Квартира',
