@@ -32,7 +32,7 @@ window.pin = (function () {
     },
 
     getMainPinPositionY: function (node) {
-      var activeY = Math.round(Number(node.style.top.slice(0, node.style.top.length - 2)) + MainPinSize.TRIANGLE_HEIGHT);
+      var activeY = Math.round(Number(node.style.top.slice(0, node.style.top.length - 2)) + MainPinSize.HEIGHT + MainPinSize.TRIANGLE_HEIGHT);
       return activeY;
     },
 
