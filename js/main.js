@@ -2,11 +2,6 @@
 
 (function () {
   var ADVERTS_AMOUNT = 8;
-  var MainPinSize = {
-    WIDTH: 65,
-    HEIGHT: 65,
-    TRIANGLE_HEIGHT: 22
-  };
 
   /**
    * Акивирует страницу при клике левой кнопкой мыши
@@ -41,9 +36,6 @@
     var adFormElement = document.querySelectorAll('.ad-form__element');
     var mapPinMain = document.querySelector('.map__pin--main');
     var inputAddress = document.querySelector('#address');
-    var activeX = Math.round(Number(mapPinMain.style.left.slice(0, mapPinMain.style.left.length - 2)) + MainPinSize.WIDTH / 2);
-    var activeY = Math.round(Number(mapPinMain.style.top.slice(0, mapPinMain.style.top.length - 2)) + MainPinSize.TRIANGLE_HEIGHT);
-    var noneActiveY = Math.round(Number(mapPinMain.style.top.slice(0, mapPinMain.style.top.length - 2)) - MainPinSize.HEIGHT / 2);
     var inputRoomNumber = document.querySelector('#room_number');
     var inputRoomType = document.querySelector('#type');
     var inputTimeIn = document.querySelector('#timein');
@@ -130,7 +122,7 @@
       adForm.classList.remove('ad-form--disabled');
       mapFeatures.removeAttribute('disabled');
       adFormHeader.removeAttribute('disabled');
-      inputAddress.value = activeX + ', ' + activeY;
+      inputAddress.value = window.pin.getMainPinPositionX(mapPinMain) + ', ' + window.pin.getMainPinPositionY(mapPinMain);
       mapFilter.forEach(function (item) {
         item.removeAttribute('disabled');
       });
@@ -144,12 +136,13 @@
       inputRoomType.addEventListener('change', window.form.setValidation);
       inputTimeIn.addEventListener('change', window.form.setValidation);
       inputTimeOut.addEventListener('change', window.form.setValidation);
+      window.move.mainPin();
     } else {
       map.classList.add('map--faded');
       adForm.classList.add('ad-form--disabled');
       mapFeatures.setAttribute('disabled', true);
       adFormHeader.setAttribute('disabled', true);
-      inputAddress.value = activeX + ', ' + noneActiveY;
+      inputAddress.value = window.pin.getMainPinPositionX(mapPinMain) + ', ' + window.pin.getMainPinNoneAtiveY(mapPinMain);
       mapFilter.forEach(function (item) {
         item.setAttribute('disabled', true);
       });

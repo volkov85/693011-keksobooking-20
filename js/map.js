@@ -11,7 +11,7 @@ window.map = (function () {
       var listElement = document.querySelector('.map');
       var filterElement = document.querySelector('.map__filters-container');
       advert.forEach(function (card) {
-        fragment.appendChild(window.card.renderCard(card));
+        fragment.appendChild(window.card.render(card));
       });
       listElement.insertBefore(fragment, filterElement);
     },
@@ -24,7 +24,7 @@ window.map = (function () {
       var fragment = document.createDocumentFragment();
       var listElement = document.querySelector('.map__pins');
       ads.forEach(function (card) {
-        fragment.appendChild(window.pin.renderPin(card));
+        fragment.appendChild(window.pin.render(card));
       });
       listElement.appendChild(fragment);
     }
