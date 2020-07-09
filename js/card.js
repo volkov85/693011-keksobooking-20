@@ -75,7 +75,11 @@ window.card = (function () {
       cardElement.querySelector('.popup__text--price').textContent = '';
       cardElement.querySelector('.popup__text--price').insertAdjacentHTML('beforeend', card.offer.price + '&#x20bd;<span>/ночь</span>');
       cardElement.querySelector('.popup__type').textContent = OfferType[card.offer.type];
-      cardElement.querySelector('.popup__text--capacity').textContent = card.offer.rooms + ' комнат' + pluralizeRus(card.offer.rooms, ['а', 'ы', '']) + ' для ' + card.offer.guests + ' гост' + pluralizeRus(card.offer.guests, ['я', 'ей', 'ей']);
+      if (card.offer.rooms !== 0) {
+        cardElement.querySelector('.popup__text--capacity').textContent = card.offer.rooms + ' комнат' + pluralizeRus(card.offer.rooms, ['а', 'ы', '']) + ' для ' + card.offer.guests + ' гост' + pluralizeRus(card.offer.guests, ['я', 'ей', 'ей']);
+      } else {
+        cardElement.querySelector('.popup__text--capacity').remove();
+      }
       cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + card.offer.checkin + ', выезд до ' + card.offer.checkout;
       cardElement.querySelector('.popup__description').textContent = card.offer.description;
       cardElement.style = 'visibility: hidden;';

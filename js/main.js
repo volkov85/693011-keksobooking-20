@@ -1,8 +1,6 @@
 'use strict';
 
 (function () {
-  var ADVERTS_AMOUNT = 8;
-
   /**
    * Акивирует страницу при клике левой кнопкой мыши
    * @param {Object} evt - Событие при клике мыши
@@ -41,82 +39,106 @@
     var inputTimeIn = document.querySelector('#timein');
     var inputTimeOut = document.querySelector('#timeout');
     if (flag) {
-      var adverts = window.data.generateAdverts(ADVERTS_AMOUNT);
-      window.map.pushPins(adverts);
+      /**
+       * Заполнение DOM-элементами при успешном получении данных
+       * @param  {Array} cards - массив, содержащий загруженные данные
+       */
+      var successHandler = function (cards) {
+        window.map.pushPins(cards);
+        window.map.pushCard(cards);
+
+        var mapCards = document.querySelectorAll('.map__card');
+        var popupClose = document.querySelectorAll('.popup__close');
+        var pins = document.querySelectorAll('.map__pin--main ~ .map__pin');
+
+        /**
+         * Скрытие окна-попапа и удаление слушателя событий
+         * @param {Object} items - коллекция всех карточек-попапов
+         */
+        var closePopup = function (items) {
+          items.forEach(function (item) {
+            if (item.style.visibility === 'visible') {
+              item.style.visibility = 'hidden';
+            }
+          });
+          document.removeEventListener('keydown', onPopupEscPress);
+        };
+
+        /**
+         * Проверка на клавишу ESC и запуск функции скрытия окна
+         * @param {Object} evt - нажатая клавиша
+         */
+        var onPopupEscPress = function (evt) {
+          if (evt.key === 'Escape') {
+            evt.preventDefault();
+            closePopup(mapCards);
+          }
+        };
+
+        /**
+         * Поиск нужной карточки, открытие и запуск слушателя событий на ESC
+         * @param {Object} items - коллекция всех карточек-попапов
+         * @param {Object} evt - нажатый пин для сравнения индексов
+         */
+        var openPopup = function (items, evt) {
+          items.forEach(function (item) {
+            if (item.dataset.index === evt.target.dataset.index) {
+              item.style.visibility = 'visible';
+            } else {
+              item.style.visibility = 'hidden';
+            }
+          });
+          document.addEventListener('keydown', onPopupEscPress);
+        };
+
+        popupClose.forEach(function (popup) {
+          popup.addEventListener('mousedown', function (evt) {
+            if (evt.button === 0) {
+              closePopup(mapCards);
+            }
+          });
+          popup.addEventListener('keydown', function (evt) {
+            if (evt.key === 'Enter') {
+              closePopup(mapCards);
+            }
+          });
+        });
+
+        pins.forEach(function (pin) {
+          pin.addEventListener('mousedown', function (evt) {
+            if (evt.button === 0) {
+              openPopup(mapCards, evt);
+            }
+          });
+          pin.addEventListener('keydown', function (evt) {
+            if (evt.key === 'Enter') {
+              openPopup(mapCards, evt);
+            }
+          });
+        });
+      };
+
+      /**
+       * Формирование и вывод сообщения об ошибке
+       * @param {string} errorMessage - строка сообщение об ошибке
+       */
+      var errorHandler = function (errorMessage) {
+        var node = document.createElement('div');
+        node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
+        node.style.position = 'absolute';
+        node.style.left = 0;
+        node.style.right = 0;
+        node.style.fontSize = '30px';
+
+        node.textContent = errorMessage;
+        document.body.insertAdjacentElement('afterbegin', node);
+      };
+
+      window.backend.load(successHandler, errorHandler);
+
       window.form.setValidation(inputRoomNumber, true);
       window.form.setValidation(inputRoomType, true);
       window.form.setValidation(inputTimeIn, true);
-      window.map.pushCard(adverts);
-
-      var cards = document.querySelectorAll('.map__card');
-      var popupClose = document.querySelectorAll('.popup__close');
-      var pins = document.querySelectorAll('.map__pin--main ~ .map__pin');
-
-      /**
-       * Скрытие окна-попапа и удаление слушателя событий
-       * @param {Object} items - коллекция всех карточек-попапов
-       */
-      var closePopup = function (items) {
-        items.forEach(function (item) {
-          if (item.style.visibility === 'visible') {
-            item.style.visibility = 'hidden';
-          }
-        });
-        document.removeEventListener('keydown', onPopupEscPress);
-      };
-
-      /**
-       * Проверка на клавишу ESC и запуск функции скрытия окна
-       * @param {Object} evt - нажатая клавиша
-       */
-      var onPopupEscPress = function (evt) {
-        if (evt.key === 'Escape') {
-          evt.preventDefault();
-          closePopup(cards);
-        }
-      };
-
-      /**
-       * Поиск нужной карточки, открытие и запуск слушателя событий на ESC
-       * @param {Object} items - коллекция всех карточек-попапов
-       * @param {Object} evt - нажатый пин для сравнения индексов
-       */
-      var openPopup = function (items, evt) {
-        items.forEach(function (item) {
-          if (item.dataset.index === evt.target.dataset.index) {
-            item.style.visibility = 'visible';
-          } else {
-            item.style.visibility = 'hidden';
-          }
-        });
-        document.addEventListener('keydown', onPopupEscPress);
-      };
-
-      popupClose.forEach(function (popup) {
-        popup.addEventListener('mousedown', function (evt) {
-          if (evt.button === 0) {
-            closePopup(cards);
-          }
-        });
-        popup.addEventListener('keydown', function (evt) {
-          if (evt.key === 'Enter') {
-            closePopup(cards);
-          }
-        });
-      });
-
-      pins.forEach(function (pin) {
-        pin.addEventListener('mousedown', function (evt) {
-          if (evt.button === 0) {
-            openPopup(cards, evt);
-          }
-        });
-        pin.addEventListener('keydown', function (evt) {
-          if (evt.key === 'Enter') {
-            openPopup(cards, evt);
-          }
-        });
-      });
 
       map.classList.remove('map--faded');
       adForm.classList.remove('ad-form--disabled');
@@ -149,17 +171,16 @@
       adFormElement.forEach(function (item) {
         item.setAttribute('disabled', true);
       });
-      pins = document.querySelectorAll('.map__pin--main ~ .map__pin');
+      var pins = document.querySelectorAll('.map__pin--main ~ .map__pin');
       pins.forEach(function (item) {
         item.remove();
       });
-      cards = document.querySelectorAll('.map__card');
+      var cards = document.querySelectorAll('.map__card');
       cards.forEach(function (item) {
         item.remove();
       });
       mapPinMain.addEventListener('mousedown', onMousePressActivate);
       mapPinMain.addEventListener('keydown', onKeyPressActivate);
-      document.removeEventListener('keydown', onPopupEscPress);
     }
   };
 
