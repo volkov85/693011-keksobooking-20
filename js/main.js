@@ -21,23 +21,59 @@
     }
   };
 
+  var adForm = document.querySelector('.ad-form');
+  /**
+   * Вызывает функцию отправки данных на сервер
+   * @param {Object} evt - событие submit
+   */
+  var submitHandler = function (evt) {
+    window.backend.save(new FormData(adForm), function () {
+      setActiveState(false);
+    }, errorHandler);
+    evt.preventDefault();
+  };
+
+  /**
+   * Формирование и вывод сообщения об ошибке
+   * @param {string} errorMessage - строка сообщение об ошибке
+   */
+  var errorHandler = function (errorMessage) {
+    var node = document.createElement('div');
+    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
+    node.style.position = 'absolute';
+    node.style.left = 0;
+    node.style.right = 0;
+    node.style.fontSize = '30px';
+
+    node.textContent = errorMessage;
+    document.body.insertAdjacentElement('afterbegin', node);
+  };
+
+  var inputTimeIn = document.querySelector('#timein');
+  var inputTimeOut = document.querySelector('#timeout');
+  var inputCapacity = document.querySelector('#capacity');
+  var inputRoomNumber = document.querySelector('#room_number');
+  var inputRoomType = document.querySelector('#type');
+  var mapPinMain = document.querySelector('.map__pin--main');
+  var defaultMainPinPosition = mapPinMain.style.cssText;
+  var defaultInputRoomType = inputRoomType.value;
+  var defaultInputRoomNumber = inputRoomNumber.value;
+  var defaultInputCapacity = inputCapacity.value;
+  var defaultInputTimeIn = inputTimeIn.value;
+  var defaultInputTimeOut = inputTimeOut.value;
+
   /**
    * Переключает страницу из неактивного состояния в активное и наоборот
    * @param  {boolean} flag - true - активировать страницу, false - деактивировать
    */
   var setActiveState = function (flag) {
     var map = document.querySelector('.map');
-    var adForm = document.querySelector('.ad-form');
     var mapFilter = document.querySelectorAll('.map__filter');
     var mapFeatures = document.querySelector('.map__features');
     var adFormHeader = document.querySelector('.ad-form-header');
     var adFormElement = document.querySelectorAll('.ad-form__element');
-    var mapPinMain = document.querySelector('.map__pin--main');
     var inputAddress = document.querySelector('#address');
-    var inputRoomNumber = document.querySelector('#room_number');
-    var inputRoomType = document.querySelector('#type');
-    var inputTimeIn = document.querySelector('#timein');
-    var inputTimeOut = document.querySelector('#timeout');
+
     if (flag) {
       /**
        * Заполнение DOM-элементами при успешном получении данных
@@ -118,22 +154,6 @@
         });
       };
 
-      /**
-       * Формирование и вывод сообщения об ошибке
-       * @param {string} errorMessage - строка сообщение об ошибке
-       */
-      var errorHandler = function (errorMessage) {
-        var node = document.createElement('div');
-        node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
-        node.style.position = 'absolute';
-        node.style.left = 0;
-        node.style.right = 0;
-        node.style.fontSize = '30px';
-
-        node.textContent = errorMessage;
-        document.body.insertAdjacentElement('afterbegin', node);
-      };
-
       window.backend.load(successHandler, errorHandler);
 
       window.form.setValidation(inputRoomNumber, true);
@@ -160,18 +180,24 @@
       inputTimeOut.addEventListener('change', window.form.setValidation);
       window.move.mainPin();
 
-      /**
-       * Вызывает функцию отправки данных на сервер
-       * @param {Object} evt - событие submit
-       */
-      var submitHandler = function (evt) {
-        window.backend.save(new FormData(adForm), function () {
-        }, errorHandler);
-        evt.preventDefault();
-      };
-
       adForm.addEventListener('submit', submitHandler);
     } else {
+      var inputTitle = document.querySelector('#title');
+      var inputPrice = document.querySelector('#price');
+      var inputDescription = document.querySelector('#description');
+      var inputCheckbox = document.querySelectorAll('.feature__checkbox');
+      inputCheckbox.forEach(function (item) {
+        item.checked = false;
+      });
+      inputTitle.value = '';
+      inputPrice.value = '';
+      inputDescription.value = '';
+      mapPinMain.style.cssText = defaultMainPinPosition;
+      inputRoomType.value = defaultInputRoomType;
+      inputRoomNumber.value = defaultInputRoomNumber;
+      inputCapacity.value = defaultInputCapacity;
+      inputTimeIn.value = defaultInputTimeIn;
+      inputTimeOut.value = defaultInputTimeOut;
       map.classList.add('map--faded');
       adForm.classList.add('ad-form--disabled');
       mapFeatures.setAttribute('disabled', true);
@@ -193,6 +219,7 @@
       });
       mapPinMain.addEventListener('mousedown', onMousePressActivate);
       mapPinMain.addEventListener('keydown', onKeyPressActivate);
+      adForm.removeEventListener('submit', submitHandler);
     }
   };
 
