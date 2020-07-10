@@ -159,6 +159,18 @@
       inputTimeIn.addEventListener('change', window.form.setValidation);
       inputTimeOut.addEventListener('change', window.form.setValidation);
       window.move.mainPin();
+
+      /**
+       * Вызывает функцию отправки данных на сервер
+       * @param {Object} evt - событие submit
+       */
+      var submitHandler = function (evt) {
+        window.backend.save(new FormData(adForm), function () {
+        }, errorHandler);
+        evt.preventDefault();
+      };
+
+      adForm.addEventListener('submit', submitHandler);
     } else {
       map.classList.add('map--faded');
       adForm.classList.add('ad-form--disabled');
