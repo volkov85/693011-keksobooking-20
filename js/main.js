@@ -26,29 +26,103 @@
    * Вызывает функцию отправки данных на сервер
    * @param {Object} evt - событие submit
    */
-  var submitHandler = function (evt) {
+  var onSubmitPress = function (evt) {
     window.backend.save(new FormData(adForm), function () {
       setActiveState(false);
+      renderSuccessWindow();
     }, errorHandler);
     evt.preventDefault();
   };
 
   /**
-   * Формирование и вывод сообщения об ошибке
-   * @param {string} errorMessage - строка сообщение об ошибке
+   * Вызывает функцию сброса страницы в начальное состояние
    */
-  var errorHandler = function (errorMessage) {
-    var node = document.createElement('div');
-    node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
-    node.style.position = 'absolute';
-    node.style.left = 0;
-    node.style.right = 0;
-    node.style.fontSize = '30px';
-
-    node.textContent = errorMessage;
-    document.body.insertAdjacentElement('afterbegin', node);
+  var onResetPress = function () {
+    setActiveState(false);
   };
 
+  /**
+   * Формирование и вывод сообщения об ошибке
+   */
+  var errorHandler = function () {
+    renderErrorWindow();
+  };
+
+  /**
+   * Закрытие окна успешной отправки или ошибки во время отправки данных
+   * @param {boolean} flag - true - закрытие окна успешной отправки, false - закрытие окна с ошибкой
+   */
+  var closeEventPopup = function (flag) {
+    if (flag) {
+      document.querySelector('.success').remove();
+      document.removeEventListener('keydown', onPopupDataEscPress);
+    } else {
+      document.querySelector('.error').remove();
+      document.removeEventListener('keydown', onPopupDataEscPress);
+    }
+    document.removeEventListener('mousedown', onPopupMousePress);
+  };
+
+  /**
+   * Проверка на клавишу ESC и запуск функции скрытия окна ошибки или окна успешной отправки
+   * @param {Object} evt - нажатая клавиша
+   */
+  var onPopupDataEscPress = function (evt) {
+    if (evt.key === 'Escape' && document.querySelector('.success') !== null) {
+      evt.preventDefault();
+      closeEventPopup(true);
+    } else if (evt.key === 'Escape' && document.querySelector('.error') !== null) {
+      closeEventPopup(false);
+    }
+  };
+
+  /**
+   * Проверка на левую кнопку мыши и запуск функции скрытия окна успешной отправки или ошибки
+   * @param {Object} evt - нажатая кнопка мыши
+   */
+  var onPopupMousePress = function (evt) {
+    if (evt.button === 0 && evt.target.classList.value !== 'success__message' && document.querySelector('.success') !== null) {
+      closeEventPopup(true);
+    } else if (evt.button === 0 && evt.target.classList.value !== 'error__message' && document.querySelector('.error') !== null) {
+      closeEventPopup(false);
+    }
+  };
+
+  /**
+   * Вызов окна успешной отправки данных
+   */
+  var renderSuccessWindow = function () {
+    var successWindowTemplate = document.querySelector('#success').content.querySelector('.success');
+    var successWindowElement = successWindowTemplate.cloneNode(true);
+    var main = document.querySelector('main');
+    main.appendChild(successWindowElement);
+    document.addEventListener('keydown', onPopupDataEscPress);
+    document.addEventListener('mousedown', onPopupMousePress);
+  };
+
+  /**
+   * Вызов окна ошибки отправки данных
+   */
+  var renderErrorWindow = function () {
+    var errorWindowTemplate = document.querySelector('#error').content.querySelector('.error');
+    var errorWindowElement = errorWindowTemplate.cloneNode(true);
+    var main = document.querySelector('main');
+    main.appendChild(errorWindowElement);
+    var errorButton = document.querySelector('.error__button');
+    errorButton.addEventListener('mousedown', function (evt) {
+      if (evt.button === 0) {
+        document.querySelector('.error').remove();
+        document.removeEventListener('mousedown', onPopupMousePress);
+        document.removeEventListener('keydown', onPopupDataEscPress);
+      }
+    });
+    document.addEventListener('keydown', onPopupDataEscPress);
+    document.addEventListener('mousedown', onPopupMousePress);
+  };
+
+  /**
+   * Получение дефолтных значений для сброса
+   */
   var inputTimeIn = document.querySelector('#timein');
   var inputTimeOut = document.querySelector('#timeout');
   var inputCapacity = document.querySelector('#capacity');
@@ -180,7 +254,8 @@
       inputTimeOut.addEventListener('change', window.form.setValidation);
       window.move.mainPin();
 
-      adForm.addEventListener('submit', submitHandler);
+      adForm.addEventListener('submit', onSubmitPress);
+      adForm.addEventListener('reset', onResetPress);
     } else {
       var inputTitle = document.querySelector('#title');
       var inputPrice = document.querySelector('#price');
@@ -219,7 +294,8 @@
       });
       mapPinMain.addEventListener('mousedown', onMousePressActivate);
       mapPinMain.addEventListener('keydown', onKeyPressActivate);
-      adForm.removeEventListener('submit', submitHandler);
+      adForm.removeEventListener('submit', onSubmitPress);
+      adForm.removeEventListener('reset', onResetPress);
     }
   };
 
