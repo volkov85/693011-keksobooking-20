@@ -21,23 +21,133 @@
     }
   };
 
+  var adForm = document.querySelector('.ad-form');
+  /**
+   * Вызывает функцию отправки данных на сервер
+   * @param {Object} evt - событие submit
+   */
+  var onSubmitPress = function (evt) {
+    window.backend.save(new FormData(adForm), function () {
+      setActiveState(false);
+      renderSuccessWindow();
+    }, errorHandler);
+    evt.preventDefault();
+  };
+
+  /**
+   * Вызывает функцию сброса страницы в начальное состояние
+   */
+  var onResetPress = function () {
+    setActiveState(false);
+  };
+
+  /**
+   * Формирование и вывод сообщения об ошибке
+   */
+  var errorHandler = function () {
+    renderErrorWindow();
+  };
+
+  /**
+   * Закрытие окна успешной отправки или ошибки во время отправки данных
+   * @param {boolean} flag - true - закрытие окна успешной отправки, false - закрытие окна с ошибкой
+   */
+  var closeEventPopup = function (flag) {
+    if (flag) {
+      document.querySelector('.success').remove();
+      document.removeEventListener('keydown', onPopupDataEscPress);
+    } else {
+      document.querySelector('.error').remove();
+      document.removeEventListener('keydown', onPopupDataEscPress);
+    }
+    document.removeEventListener('mousedown', onPopupMousePress);
+  };
+
+  /**
+   * Проверка на клавишу ESC и запуск функции скрытия окна ошибки или окна успешной отправки
+   * @param {Object} evt - нажатая клавиша
+   */
+  var onPopupDataEscPress = function (evt) {
+    if (evt.key === 'Escape' && document.querySelector('.success') !== null) {
+      evt.preventDefault();
+      closeEventPopup(true);
+    } else if (evt.key === 'Escape' && document.querySelector('.error') !== null) {
+      closeEventPopup(false);
+    }
+  };
+
+  /**
+   * Проверка на левую кнопку мыши и запуск функции скрытия окна успешной отправки или ошибки
+   * @param {Object} evt - нажатая кнопка мыши
+   */
+  var onPopupMousePress = function (evt) {
+    if (evt.button === 0 && evt.target.classList.value !== 'success__message' && document.querySelector('.success') !== null) {
+      closeEventPopup(true);
+    } else if (evt.button === 0 && evt.target.classList.value !== 'error__message' && document.querySelector('.error') !== null) {
+      closeEventPopup(false);
+    }
+  };
+
+  /**
+   * Вызов окна успешной отправки данных
+   */
+  var renderSuccessWindow = function () {
+    var successWindowTemplate = document.querySelector('#success').content.querySelector('.success');
+    var successWindowElement = successWindowTemplate.cloneNode(true);
+    var main = document.querySelector('main');
+    main.appendChild(successWindowElement);
+    document.addEventListener('keydown', onPopupDataEscPress);
+    document.addEventListener('mousedown', onPopupMousePress);
+  };
+
+  /**
+   * Вызов окна ошибки отправки данных
+   */
+  var renderErrorWindow = function () {
+    var errorWindowTemplate = document.querySelector('#error').content.querySelector('.error');
+    var errorWindowElement = errorWindowTemplate.cloneNode(true);
+    var main = document.querySelector('main');
+    main.appendChild(errorWindowElement);
+    var errorButton = document.querySelector('.error__button');
+    errorButton.addEventListener('mousedown', function (evt) {
+      if (evt.button === 0) {
+        document.querySelector('.error').remove();
+        document.removeEventListener('mousedown', onPopupMousePress);
+        document.removeEventListener('keydown', onPopupDataEscPress);
+      }
+    });
+    document.addEventListener('keydown', onPopupDataEscPress);
+    document.addEventListener('mousedown', onPopupMousePress);
+  };
+
+  /**
+   * Получение дефолтных значений для сброса
+   */
+  var inputTimeIn = document.querySelector('#timein');
+  var inputTimeOut = document.querySelector('#timeout');
+  var inputCapacity = document.querySelector('#capacity');
+  var inputRoomNumber = document.querySelector('#room_number');
+  var inputRoomType = document.querySelector('#type');
+  var mapPinMain = document.querySelector('.map__pin--main');
+  var defaultMainPinPosition = mapPinMain.style.cssText;
+  var defaultInputRoomType = inputRoomType.value;
+  var defaultInputRoomNumber = inputRoomNumber.value;
+  var defaultInputCapacity = inputCapacity.value;
+  var defaultInputTimeIn = inputTimeIn.value;
+  var defaultInputTimeOut = inputTimeOut.value;
+
   /**
    * Переключает страницу из неактивного состояния в активное и наоборот
    * @param  {boolean} flag - true - активировать страницу, false - деактивировать
    */
   var setActiveState = function (flag) {
     var map = document.querySelector('.map');
-    var adForm = document.querySelector('.ad-form');
     var mapFilter = document.querySelectorAll('.map__filter');
     var mapFeatures = document.querySelector('.map__features');
     var adFormHeader = document.querySelector('.ad-form-header');
     var adFormElement = document.querySelectorAll('.ad-form__element');
-    var mapPinMain = document.querySelector('.map__pin--main');
     var inputAddress = document.querySelector('#address');
-    var inputRoomNumber = document.querySelector('#room_number');
-    var inputRoomType = document.querySelector('#type');
-    var inputTimeIn = document.querySelector('#timein');
-    var inputTimeOut = document.querySelector('#timeout');
+
     if (flag) {
       /**
        * Заполнение DOM-элементами при успешном получении данных
@@ -118,22 +228,6 @@
         });
       };
 
-      /**
-       * Формирование и вывод сообщения об ошибке
-       * @param {string} errorMessage - строка сообщение об ошибке
-       */
-      var errorHandler = function (errorMessage) {
-        var node = document.createElement('div');
-        node.style = 'z-index: 100; margin: 0 auto; text-align: center; background-color: red;';
-        node.style.position = 'absolute';
-        node.style.left = 0;
-        node.style.right = 0;
-        node.style.fontSize = '30px';
-
-        node.textContent = errorMessage;
-        document.body.insertAdjacentElement('afterbegin', node);
-      };
-
       window.backend.load(successHandler, errorHandler);
 
       window.form.setValidation(inputRoomNumber, true);
@@ -159,7 +253,26 @@
       inputTimeIn.addEventListener('change', window.form.setValidation);
       inputTimeOut.addEventListener('change', window.form.setValidation);
       window.move.mainPin();
+
+      adForm.addEventListener('submit', onSubmitPress);
+      adForm.addEventListener('reset', onResetPress);
     } else {
+      var inputTitle = document.querySelector('#title');
+      var inputPrice = document.querySelector('#price');
+      var inputDescription = document.querySelector('#description');
+      var inputCheckbox = document.querySelectorAll('.feature__checkbox');
+      inputCheckbox.forEach(function (item) {
+        item.checked = false;
+      });
+      inputTitle.value = '';
+      inputPrice.value = '';
+      inputDescription.value = '';
+      mapPinMain.style.cssText = defaultMainPinPosition;
+      inputRoomType.value = defaultInputRoomType;
+      inputRoomNumber.value = defaultInputRoomNumber;
+      inputCapacity.value = defaultInputCapacity;
+      inputTimeIn.value = defaultInputTimeIn;
+      inputTimeOut.value = defaultInputTimeOut;
       map.classList.add('map--faded');
       adForm.classList.add('ad-form--disabled');
       mapFeatures.setAttribute('disabled', true);
@@ -181,6 +294,8 @@
       });
       mapPinMain.addEventListener('mousedown', onMousePressActivate);
       mapPinMain.addEventListener('keydown', onKeyPressActivate);
+      adForm.removeEventListener('submit', onSubmitPress);
+      adForm.removeEventListener('reset', onResetPress);
     }
   };
 
