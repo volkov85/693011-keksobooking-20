@@ -154,7 +154,8 @@
        * @param  {Array} cards - массив, содержащий загруженные данные
        */
       var successHandler = function (cards) {
-        window.map.pushCardsPins(cards);
+        var DEFAULT_PIN_NUMBERS = 5;
+        window.map.pushCardsPins(cards.slice(0, DEFAULT_PIN_NUMBERS));
 
         /**
          * Вызов и удаление событий карточки и пинов
@@ -241,7 +242,7 @@
         /**
          * Фильтрация по типу жилья с повторным рендерингом карточек и пинов
          */
-        var updateDataByHousingType = function () {
+        var updateData = function () {
           var filteredArray = cards.filter(function (item) {
             return item.offer.type === inputHousingType.value;
           });
@@ -249,46 +250,24 @@
           if (inputHousingType.value !== 'any') {
             window.map.pushCardsPins(newArr);
           } else {
-            window.map.pushCardsPins(cards);
+            window.map.pushCardsPins(cards.slice(0, DEFAULT_PIN_NUMBERS));
           }
           popupEvents();
         };
 
-        inputHousingType.addEventListener('change', updateDataByHousingType);
-
-        /**
-         * Скрытие открытой карточки объявления
-         */
-        var hidePopup = function () {
-          var popupCards = document.querySelectorAll('.map__card.popup');
-          popupCards.forEach(function (item) {
-            item.style = 'visibility: hidden;';
-          });
-        };
+        inputHousingType.addEventListener('change', updateData);
 
         var inputHousingPrice = document.querySelector('#housing-price');
-        var updateDataByHousingPrice = function () {
-          hidePopup();
-        };
-        inputHousingPrice.addEventListener('change', updateDataByHousingPrice);
+        inputHousingPrice.addEventListener('change', updateData);
 
         var inputHousingRooms = document.querySelector('#housing-rooms');
-        var updateDataByHousingRooms = function () {
-          hidePopup();
-        };
-        inputHousingRooms.addEventListener('change', updateDataByHousingRooms);
+        inputHousingRooms.addEventListener('change', updateData);
 
         var inputHousingGuests = document.querySelector('#housing-guests');
-        var updateDataByHousingGuests = function () {
-          hidePopup();
-        };
-        inputHousingGuests.addEventListener('change', updateDataByHousingGuests);
+        inputHousingGuests.addEventListener('change', updateData);
 
         var inputHousingFeatures = document.querySelector('#housing-features');
-        var updateDataByHousingFeatures = function () {
-          hidePopup();
-        };
-        inputHousingFeatures.addEventListener('change', updateDataByHousingFeatures);
+        inputHousingFeatures.addEventListener('change', updateData);
       };
 
       window.backend.load(successHandler, errorHandler);

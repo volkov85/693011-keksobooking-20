@@ -1,32 +1,12 @@
 'use strict';
 
 window.map = (function () {
-
-  /**
-   * Перемешивание массива по алгоритму Фишера — Йетса и уменьшение длины массива до 5 элементов
-   * @param  {Array} array - исходный массив
-   * @return {Array} array - перемешанный массив
-   */
-  var shuffleArray = function (array) {
-    for (var i = array.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = array[i];
-      array[i] = array[j];
-      array[j] = t;
-    }
-    if (array.length > 5) {
-      array.length = 5;
-    }
-    return array;
-  };
-
   /**
    * Возвращает массив с добавлением индексного объекта и подготавливает к выводу фотографий
    * @param {Array} array - исходный массив
    * @return {Array} array - дополненный массив
    */
   var extendArray = function (array) {
-    shuffleArray(array);
     for (var i = 0; i < array.length; i++) {
       if (array[i].offer.photos.length === 0) {
         array[i].offer.photos = false;
