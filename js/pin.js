@@ -10,7 +10,7 @@ window.pin = (function () {
   return {
     /**
      * Создание DOM элемента по шаблону #pin на основе JS объекта
-     * @param  {Array} card - массив объектов, содержащий сгенерированные данные для пина
+     * @param  {Array} card - массив объектов, содержащий полученные данные для пина
      * @return {Object} cardElement - клон элемента map__pin с содержимым из массива card
      */
     render: function (card) {
