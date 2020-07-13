@@ -22,7 +22,7 @@ window.card = (function () {
   return {
     /**
      * Создание DOM элемента по шаблону #card на основе JS объекта
-     * @param  {Array} card - массив объектов, содержащий сгенерированные данные для карточки
+     * @param  {Array} card - массив объектов, содержащий полученные данные для карточки
      * @return {Object} cardElement - клон элемента map__card с содержимым из массива card
      */
     render: function (card) {

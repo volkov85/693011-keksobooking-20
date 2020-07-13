@@ -18,32 +18,35 @@ window.map = (function () {
 
   return {
     /**
-     * Заполнение блока card DOM-элементами на основе массива JS-объектов
-     * @param  {Array} advert - элемент массива объектов, содержащий сгенерированные данные для карточки
+     * Заполнение блоков DOM-элементами на основе массива JS-объектов
+     * @param  {Array} advert - элемент массива объектов, содержащий полученные данные для карточек и пинов
      */
-    pushCard: function (advert) {
-      extendArray(advert);
-      var fragment = document.createDocumentFragment();
-      var listElement = document.querySelector('.map');
-      var filterElement = document.querySelector('.map__filters-container');
-      advert.forEach(function (card) {
-        fragment.appendChild(window.card.render(card));
-      });
-      listElement.insertBefore(fragment, filterElement);
-    },
+    pushCardsPins: function (advert) {
+      var cardElements = document.querySelectorAll('.map__card.popup');
+      if (cardElements.length > 0) {
+        cardElements.forEach(function (item) {
+          item.remove();
+        });
+      }
+      var pinsElements = document.querySelectorAll('.map__pin--main ~ .map__pin');
+      if (pinsElements.length > 0) {
+        pinsElements.forEach(function (item) {
+          item.remove();
+        });
+      }
 
-    /**
-     * Заполнение блока pins DOM-элементами на основе массива JS-объектов
-     * @param  {Array} ads - массив объектов, содержащий сгенерированные данные для пина
-     */
-    pushPins: function (ads) {
-      extendArray(ads);
-      var fragment = document.createDocumentFragment();
-      var listElement = document.querySelector('.map__pins');
-      ads.forEach(function (card) {
-        fragment.appendChild(window.pin.render(card));
+      extendArray(advert);
+      var fragmentCard = document.createDocumentFragment();
+      var fragmentPin = document.createDocumentFragment();
+      var filterElement = document.querySelector('.map__filters-container');
+      var mainPin = document.querySelector('.map__pin--main');
+
+      advert.forEach(function (card) {
+        fragmentCard.appendChild(window.card.render(card));
+        fragmentPin.appendChild(window.pin.render(card));
       });
-      listElement.appendChild(fragment);
-    }
+      filterElement.before(fragmentCard);
+      mainPin.after(fragmentPin);
+    },
   };
 })();

@@ -154,78 +154,120 @@
        * @param  {Array} cards - массив, содержащий загруженные данные
        */
       var successHandler = function (cards) {
-        window.map.pushPins(cards);
-        window.map.pushCard(cards);
-
-        var mapCards = document.querySelectorAll('.map__card');
-        var popupClose = document.querySelectorAll('.popup__close');
-        var pins = document.querySelectorAll('.map__pin--main ~ .map__pin');
+        var DEFAULT_PIN_NUMBERS = 5;
+        window.map.pushCardsPins(cards.slice(0, DEFAULT_PIN_NUMBERS));
 
         /**
-         * Скрытие окна-попапа и удаление слушателя событий
-         * @param {Object} items - коллекция всех карточек-попапов
+         * Вызов и удаление событий карточки и пинов
          */
-        var closePopup = function (items) {
-          items.forEach(function (item) {
-            if (item.style.visibility === 'visible') {
-              item.style.visibility = 'hidden';
+        var popupEvents = function () {
+          var mapCards = document.querySelectorAll('.map__card');
+          var popupClose = document.querySelectorAll('.popup__close');
+          var pins = document.querySelectorAll('.map__pin--main ~ .map__pin');
+
+          /**
+           * Скрытие окна-попапа и удаление слушателя событий
+           * @param {Object} items - коллекция всех карточек-попапов
+           */
+          var closePopup = function (items) {
+            items.forEach(function (item) {
+              if (item.style.visibility === 'visible') {
+                item.style.visibility = 'hidden';
+              }
+            });
+            document.removeEventListener('keydown', onPopupEscPress);
+          };
+
+          /**
+           * Проверка на клавишу ESC и запуск функции скрытия окна
+           * @param {Object} evt - нажатая клавиша
+           */
+          var onPopupEscPress = function (evt) {
+            if (evt.key === 'Escape') {
+              evt.preventDefault();
+              closePopup(mapCards);
             }
+          };
+
+          /**
+           * Поиск нужной карточки, открытие и запуск слушателя событий на ESC
+           * @param {Object} items - коллекция всех карточек-попапов
+           * @param {Object} evt - нажатый пин для сравнения индексов
+           */
+          var openPopup = function (items, evt) {
+            items.forEach(function (item) {
+              if (item.dataset.index === evt.target.dataset.index) {
+                item.style.visibility = 'visible';
+              } else {
+                item.style.visibility = 'hidden';
+              }
+            });
+            document.addEventListener('keydown', onPopupEscPress);
+          };
+
+          popupClose.forEach(function (popup) {
+            popup.addEventListener('mousedown', function (evt) {
+              if (evt.button === 0) {
+                closePopup(mapCards);
+              }
+            });
+            popup.addEventListener('keydown', function (evt) {
+              if (evt.key === 'Enter') {
+                closePopup(mapCards);
+              }
+            });
           });
-          document.removeEventListener('keydown', onPopupEscPress);
+
+          pins.forEach(function (pin) {
+            pin.addEventListener('mousedown', function (evt) {
+              if (evt.button === 0) {
+                openPopup(mapCards, evt);
+              }
+            });
+            pin.addEventListener('keydown', function (evt) {
+              if (evt.key === 'Enter') {
+                openPopup(mapCards, evt);
+              }
+            });
+          });
         };
 
+        popupEvents();
+
+        mapFilter.forEach(function (item) {
+          item.removeAttribute('disabled');
+        });
+
+        var inputHousingType = document.querySelector('#housing-type');
         /**
-         * Проверка на клавишу ESC и запуск функции скрытия окна
-         * @param {Object} evt - нажатая клавиша
+         * Фильтрация по типу жилья с повторным рендерингом карточек и пинов
          */
-        var onPopupEscPress = function (evt) {
-          if (evt.key === 'Escape') {
-            evt.preventDefault();
-            closePopup(mapCards);
+        var updateData = function () {
+          var filteredArray = cards.filter(function (item) {
+            return item.offer.type === inputHousingType.value;
+          });
+          var newArr = (filteredArray.length > 0) ? filteredArray : [];
+          if (inputHousingType.value !== 'any') {
+            window.map.pushCardsPins(newArr);
+          } else {
+            window.map.pushCardsPins(cards.slice(0, DEFAULT_PIN_NUMBERS));
           }
+          popupEvents();
         };
 
-        /**
-         * Поиск нужной карточки, открытие и запуск слушателя событий на ESC
-         * @param {Object} items - коллекция всех карточек-попапов
-         * @param {Object} evt - нажатый пин для сравнения индексов
-         */
-        var openPopup = function (items, evt) {
-          items.forEach(function (item) {
-            if (item.dataset.index === evt.target.dataset.index) {
-              item.style.visibility = 'visible';
-            } else {
-              item.style.visibility = 'hidden';
-            }
-          });
-          document.addEventListener('keydown', onPopupEscPress);
-        };
+        inputHousingType.addEventListener('change', updateData);
 
-        popupClose.forEach(function (popup) {
-          popup.addEventListener('mousedown', function (evt) {
-            if (evt.button === 0) {
-              closePopup(mapCards);
-            }
-          });
-          popup.addEventListener('keydown', function (evt) {
-            if (evt.key === 'Enter') {
-              closePopup(mapCards);
-            }
-          });
-        });
+        var inputHousingPrice = document.querySelector('#housing-price');
+        inputHousingPrice.addEventListener('change', updateData);
 
-        pins.forEach(function (pin) {
-          pin.addEventListener('mousedown', function (evt) {
-            if (evt.button === 0) {
-              openPopup(mapCards, evt);
-            }
-          });
-          pin.addEventListener('keydown', function (evt) {
-            if (evt.key === 'Enter') {
-              openPopup(mapCards, evt);
-            }
-          });
-        });
+        var inputHousingRooms = document.querySelector('#housing-rooms');
+        inputHousingRooms.addEventListener('change', updateData);
+
+        var inputHousingGuests = document.querySelector('#housing-guests');
+        inputHousingGuests.addEventListener('change', updateData);
+
+        var inputHousingFeatures = document.querySelector('#housing-features');
+        inputHousingFeatures.addEventListener('change', updateData);
       };
 
       window.backend.load(successHandler, errorHandler);
@@ -239,9 +281,6 @@
       mapFeatures.removeAttribute('disabled');
       adFormHeader.removeAttribute('disabled');
       inputAddress.value = window.pin.getMainPinPositionX(mapPinMain) + ', ' + window.pin.getMainPinPositionY(mapPinMain);
-      mapFilter.forEach(function (item) {
-        item.removeAttribute('disabled');
-      });
       adFormElement.forEach(function (item) {
         item.removeAttribute('disabled');
       });
