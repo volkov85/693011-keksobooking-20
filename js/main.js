@@ -241,7 +241,7 @@
         /**
          * Фильтрация с повторным рендерингом карточек и пинов
          */
-        var onInputChange = function () {
+        var onInputChange = window.debounce(function () {
           var getCheckedFilters = function (items) {
             var FilterValues = {
               ANY: 'any',
@@ -298,7 +298,7 @@
           };
           window.map.pushCardsPins(cards.filter(getCheckedFilters).slice(0, DEFAULT_PIN_NUMBERS));
           popupEvents();
-        };
+        });
 
         var inputHousingType = document.querySelector('#housing-type');
         inputHousingType.addEventListener('change', onInputChange);
