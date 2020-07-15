@@ -238,36 +238,82 @@
           item.removeAttribute('disabled');
         });
 
-        var inputHousingType = document.querySelector('#housing-type');
         /**
-         * Фильтрация по типу жилья с повторным рендерингом карточек и пинов
+         * Фильтрация с повторным рендерингом карточек и пинов
          */
-        var updateData = function () {
-          var filteredArray = cards.filter(function (item) {
-            return item.offer.type === inputHousingType.value;
-          });
-          var newArr = (filteredArray.length > 0) ? filteredArray : [];
-          if (inputHousingType.value !== 'any') {
-            window.map.pushCardsPins(newArr);
-          } else {
-            window.map.pushCardsPins(cards.slice(0, DEFAULT_PIN_NUMBERS));
-          }
-          popupEvents();
-        };
+        var onInputChange = window.debounce(function () {
+          var getCheckedFilters = function (items) {
+            var FilterValues = {
+              ANY: 'any',
+              PRICE: {
+                MIN: 10000,
+                MAX: 50000
+              },
+              PRICE_VALUE: {
+                LOW: 'low',
+                HIGH: 'high',
+                MIDDLE: 'middle'
+              }
+            };
+            var filterType = true;
+            var filterPrice = true;
+            var filterRooms = true;
+            var filterGuests = true;
+            var filterFeatures = true;
 
-        inputHousingType.addEventListener('change', updateData);
+            if (inputHousingType.value !== FilterValues.ANY) {
+              filterType = items.offer.type === inputHousingType.value;
+            }
+
+            if (inputHousingPrice.value !== FilterValues.ANY) {
+              var selectedPrice;
+              if (items.offer.price <= FilterValues.PRICE.MAX && items.offer.price >= FilterValues.PRICE.MIN) {
+                selectedPrice = FilterValues.PRICE_VALUE.MIDDLE;
+              } else if (items.offer.price < FilterValues.PRICE.MIN) {
+                selectedPrice = FilterValues.PRICE_VALUE.LOW;
+              } else {
+                selectedPrice = FilterValues.PRICE_VALUE.HIGH;
+              }
+              filterPrice = selectedPrice === inputHousingPrice.value;
+            }
+
+            if (inputHousingRooms.value !== FilterValues.ANY) {
+              filterRooms = items.offer.rooms.toString() === inputHousingRooms.value;
+            }
+
+            if (inputHousingGuests.value !== FilterValues.ANY) {
+              filterGuests = items.offer.guests.toString() === inputHousingGuests.value;
+            }
+
+            var checkedFeatures = inputHousingFeatures.querySelectorAll('input[name="features"]:checked');
+            if (checkedFeatures.length) {
+              checkedFeatures.forEach(function (item) {
+                if (items.offer.features.indexOf(item.value) === -1) {
+                  filterFeatures = false;
+                }
+              });
+            }
+
+            return filterType && filterPrice && filterRooms && filterGuests && filterFeatures;
+          };
+          window.map.pushCardsPins(cards.filter(getCheckedFilters).slice(0, DEFAULT_PIN_NUMBERS));
+          popupEvents();
+        });
+
+        var inputHousingType = document.querySelector('#housing-type');
+        inputHousingType.addEventListener('change', onInputChange);
 
         var inputHousingPrice = document.querySelector('#housing-price');
-        inputHousingPrice.addEventListener('change', updateData);
+        inputHousingPrice.addEventListener('change', onInputChange);
 
         var inputHousingRooms = document.querySelector('#housing-rooms');
-        inputHousingRooms.addEventListener('change', updateData);
+        inputHousingRooms.addEventListener('change', onInputChange);
 
         var inputHousingGuests = document.querySelector('#housing-guests');
-        inputHousingGuests.addEventListener('change', updateData);
+        inputHousingGuests.addEventListener('change', onInputChange);
 
         var inputHousingFeatures = document.querySelector('#housing-features');
-        inputHousingFeatures.addEventListener('change', updateData);
+        inputHousingFeatures.addEventListener('change', onInputChange);
       };
 
       window.backend.load(successHandler, errorHandler);
