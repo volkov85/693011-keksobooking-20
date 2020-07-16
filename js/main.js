@@ -1,6 +1,17 @@
 'use strict';
 
 (function () {
+
+  var DEFAULT_FILTER_VALUE = 'any';
+  var FilterPrice = {
+    MIN: 10000,
+    MAX: 50000
+  };
+  var PriceValue = {
+    LOW: 'low',
+    HIGH: 'high',
+    MIDDLE: 'middle'
+  };
   /**
    * Акивирует страницу при клике левой кнопкой мыши
    * @param {Object} evt - Событие при клике мыши
@@ -243,45 +254,33 @@
          */
         var onInputChange = window.debounce(function () {
           var getCheckedFilters = function (items) {
-            var FilterValues = {
-              ANY: 'any',
-              PRICE: {
-                MIN: 10000,
-                MAX: 50000
-              },
-              PRICE_VALUE: {
-                LOW: 'low',
-                HIGH: 'high',
-                MIDDLE: 'middle'
-              }
-            };
             var filterType = true;
             var filterPrice = true;
             var filterRooms = true;
             var filterGuests = true;
             var filterFeatures = true;
 
-            if (inputHousingType.value !== FilterValues.ANY) {
+            if (inputHousingType.value !== DEFAULT_FILTER_VALUE) {
               filterType = items.offer.type === inputHousingType.value;
             }
 
-            if (inputHousingPrice.value !== FilterValues.ANY) {
+            if (inputHousingPrice.value !== DEFAULT_FILTER_VALUE) {
               var selectedPrice;
-              if (items.offer.price <= FilterValues.PRICE.MAX && items.offer.price >= FilterValues.PRICE.MIN) {
-                selectedPrice = FilterValues.PRICE_VALUE.MIDDLE;
-              } else if (items.offer.price < FilterValues.PRICE.MIN) {
-                selectedPrice = FilterValues.PRICE_VALUE.LOW;
+              if (items.offer.price <= FilterPrice.MAX && items.offer.price >= FilterPrice.MIN) {
+                selectedPrice = PriceValue.MIDDLE;
+              } else if (items.offer.price < FilterPrice.MIN) {
+                selectedPrice = PriceValue.LOW;
               } else {
-                selectedPrice = FilterValues.PRICE_VALUE.HIGH;
+                selectedPrice = PriceValue.HIGH;
               }
               filterPrice = selectedPrice === inputHousingPrice.value;
             }
 
-            if (inputHousingRooms.value !== FilterValues.ANY) {
+            if (inputHousingRooms.value !== DEFAULT_FILTER_VALUE) {
               filterRooms = items.offer.rooms.toString() === inputHousingRooms.value;
             }
 
-            if (inputHousingGuests.value !== FilterValues.ANY) {
+            if (inputHousingGuests.value !== DEFAULT_FILTER_VALUE) {
               filterGuests = items.offer.guests.toString() === inputHousingGuests.value;
             }
 
@@ -300,20 +299,14 @@
           popupEvents();
         });
 
+        var inputFilters = document.querySelector('.map__filters');
+        inputFilters.addEventListener('change', onInputChange);
+
         var inputHousingType = document.querySelector('#housing-type');
-        inputHousingType.addEventListener('change', onInputChange);
-
         var inputHousingPrice = document.querySelector('#housing-price');
-        inputHousingPrice.addEventListener('change', onInputChange);
-
         var inputHousingRooms = document.querySelector('#housing-rooms');
-        inputHousingRooms.addEventListener('change', onInputChange);
-
         var inputHousingGuests = document.querySelector('#housing-guests');
-        inputHousingGuests.addEventListener('change', onInputChange);
-
         var inputHousingFeatures = document.querySelector('#housing-features');
-        inputHousingFeatures.addEventListener('change', onInputChange);
       };
 
       window.backend.load(successHandler, errorHandler);
