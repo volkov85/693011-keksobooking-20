@@ -10,6 +10,10 @@ window.backend = (function () {
     OK: 200
   };
   var TIMEOUT_IN_MS = 10000;
+  var Method = {
+    POST: 'POST',
+    GET: 'GET'
+  };
 
   /**
    * Отправляет или загружает данные в зависимотсти от флага
@@ -39,10 +43,10 @@ window.backend = (function () {
     xhr.timeout = TIMEOUT_IN_MS;
 
     if (flag) {
-      xhr.open('POST', DataUrl.SAVE);
+      xhr.open(Method.POST, DataUrl.SAVE);
       xhr.send(data);
     } else {
-      xhr.open('GET', DataUrl.LOAD);
+      xhr.open(Method.GET, DataUrl.LOAD);
       xhr.send();
     }
   };
