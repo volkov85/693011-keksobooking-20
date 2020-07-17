@@ -33,7 +33,7 @@
   });
 
   fileChooserPhoto.addEventListener('change', function () {
-    var file = fileChooserAvatar.files[0];
+    var file = fileChooserPhoto.files[0];
     var fileName = file.name.toLowerCase();
 
     var matches = FILE_TYPES.some(function (it) {

@@ -1,6 +1,7 @@
 'use strict';
 
 window.form = (function () {
+
   var OfferPrice = {
     PALACE: 10000,
     FLAT: 1000,
@@ -33,7 +34,7 @@ window.form = (function () {
             guest.removeAttribute('disabled');
             inputCapacity.value = (item === '100') ? RoomsMapper[item] : item;
           } else {
-            guest.setAttribute('disabled', true);
+            guest.setAttribute('disabled', 'true');
           }
         });
       }

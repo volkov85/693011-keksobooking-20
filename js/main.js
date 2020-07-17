@@ -2,6 +2,7 @@
 
 (function () {
 
+  var DEFAULT_PIN_NUMBERS = 5;
   var DEFAULT_FILTER_VALUE = 'any';
   var FilterPrice = {
     MIN: 10000,
@@ -12,6 +13,17 @@
     HIGH: 'high',
     MIDDLE: 'middle'
   };
+  var adForm = document.querySelector('.ad-form');
+  var inputTimeIn = document.querySelector('#timein');
+  var inputTimeOut = document.querySelector('#timeout');
+  var inputRoomNumber = document.querySelector('#room_number');
+  var inputRoomType = document.querySelector('#type');
+  var mapPinMain = document.querySelector('.map__pin--main');
+  var defaultMainPinPosition = mapPinMain.style.cssText;
+  var defaultInputRoomNumber = inputRoomNumber.value;
+  var defaultInputTimeIn = inputTimeIn.value;
+  var defaultInputTimeOut = inputTimeOut.value;
+
   /**
    * Акивирует страницу при клике левой кнопкой мыши
    * @param {Object} evt - Событие при клике мыши
@@ -32,7 +44,6 @@
     }
   };
 
-  var adForm = document.querySelector('.ad-form');
   /**
    * Вызывает функцию отправки данных на сервер
    * @param {Object} evt - событие submit
@@ -132,22 +143,6 @@
   };
 
   /**
-   * Получение дефолтных значений для сброса
-   */
-  var inputTimeIn = document.querySelector('#timein');
-  var inputTimeOut = document.querySelector('#timeout');
-  var inputCapacity = document.querySelector('#capacity');
-  var inputRoomNumber = document.querySelector('#room_number');
-  var inputRoomType = document.querySelector('#type');
-  var mapPinMain = document.querySelector('.map__pin--main');
-  var defaultMainPinPosition = mapPinMain.style.cssText;
-  var defaultInputRoomType = inputRoomType.value;
-  var defaultInputRoomNumber = inputRoomNumber.value;
-  var defaultInputCapacity = inputCapacity.value;
-  var defaultInputTimeIn = inputTimeIn.value;
-  var defaultInputTimeOut = inputTimeOut.value;
-
-  /**
    * Переключает страницу из неактивного состояния в активное и наоборот
    * @param  {boolean} flag - true - активировать страницу, false - деактивировать
    */
@@ -165,7 +160,6 @@
        * @param  {Array} cards - массив, содержащий загруженные данные
        */
       var successHandler = function (cards) {
-        var DEFAULT_PIN_NUMBERS = 5;
         window.map.pushCardsPins(cards.slice(0, DEFAULT_PIN_NUMBERS));
 
         /**
@@ -313,7 +307,6 @@
 
       window.form.setValidation(inputRoomNumber, true);
       window.form.setValidation(inputRoomType, true);
-      window.form.setValidation(inputTimeIn, true);
 
       map.classList.remove('map--faded');
       adForm.classList.remove('ad-form--disabled');
@@ -339,6 +332,13 @@
       var inputPrice = document.querySelector('#price');
       var inputDescription = document.querySelector('#description');
       var inputCheckbox = document.querySelectorAll('.feature__checkbox');
+      var previewAvatar = document.querySelector('.ad-form-header__preview img');
+      var previewPhoto = document.querySelector('.ad-form__photo');
+
+      window.form.setValidation(inputRoomNumber, true);
+      window.form.setValidation(inputRoomType, true);
+      previewPhoto.style = '';
+      previewAvatar.src = 'img/muffin-grey.svg';
       inputCheckbox.forEach(function (item) {
         item.checked = false;
       });
@@ -346,9 +346,7 @@
       inputPrice.value = '';
       inputDescription.value = '';
       mapPinMain.style.cssText = defaultMainPinPosition;
-      inputRoomType.value = defaultInputRoomType;
       inputRoomNumber.value = defaultInputRoomNumber;
-      inputCapacity.value = defaultInputCapacity;
       inputTimeIn.value = defaultInputTimeIn;
       inputTimeOut.value = defaultInputTimeOut;
       map.classList.add('map--faded');
