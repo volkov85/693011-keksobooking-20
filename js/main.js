@@ -326,12 +326,11 @@
       inputAddress.setAttribute('readonly', 'true');
       mapPinMain.removeEventListener('mousedown', onMousePressActivate);
       mapPinMain.removeEventListener('keydown', onKeyPressActivate);
-      mapPinMain.addEventListener('mousedown', window.move.qqq);
+      mapPinMain.addEventListener('mousedown', window.move.onPinMouseMove);
       inputRoomNumber.addEventListener('change', window.form.setValidation);
       inputRoomType.addEventListener('change', window.form.setValidation);
       inputTimeIn.addEventListener('change', window.form.setValidation);
       inputTimeOut.addEventListener('change', window.form.setValidation);
-      // window.move.mainPin();
 
       adForm.addEventListener('submit', onSubmitPress);
       adForm.addEventListener('reset', onResetPress);
@@ -377,7 +376,7 @@
       });
       window.form.setValidation(inputRoomNumber, true);
       window.form.setValidation(inputRoomType, true);
-      mapPinMain.removeEventListener('mousedown', window.move.qqq);
+      mapPinMain.removeEventListener('mousedown', window.move.onPinMouseMove);
       mapPinMain.addEventListener('mousedown', onMousePressActivate);
       mapPinMain.addEventListener('keydown', onKeyPressActivate);
       adForm.removeEventListener('submit', onSubmitPress);

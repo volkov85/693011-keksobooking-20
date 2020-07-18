@@ -15,8 +15,7 @@ window.move = (function () {
   var mapPinMain = document.querySelector('.map__pin--main');
   var inputAddress = document.querySelector('#address');
   return {
-
-    qqq: function (evt) {
+    onPinMouseMove: function (evt) {
       evt.preventDefault();
       var startCoords = {
         x: evt.clientX,
