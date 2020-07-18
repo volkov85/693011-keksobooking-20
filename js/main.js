@@ -20,21 +20,21 @@
     MIDDLE: 'middle'
   };
   var adForm = document.querySelector('.ad-form');
-  var inputTimeIn = document.querySelector('#timein');
-  var inputTimeOut = document.querySelector('#timeout');
-  var inputRoomNumber = document.querySelector('#room_number');
-  var inputRoomType = document.querySelector('#type');
   var mapPinMain = document.querySelector('.map__pin--main');
-  var inputTitle = document.querySelector('#title');
-  var inputPrice = document.querySelector('#price');
-  var inputDescription = document.querySelector('#description');
-  var inputCheckbox = document.querySelectorAll('.feature__checkbox');
-  var previewAvatar = document.querySelector('.ad-form-header__preview img');
-  var previewPhoto = document.querySelector('.ad-form__photo');
   var defaultMainPinPosition = mapPinMain.style.cssText;
+  var inputRoomNumber = document.querySelector('#room_number');
   var defaultInputRoomNumber = inputRoomNumber.value;
+  var inputTimeIn = document.querySelector('#timein');
   var defaultInputTimeIn = inputTimeIn.value;
+  var inputTimeOut = document.querySelector('#timeout');
   var defaultInputTimeOut = inputTimeOut.value;
+  var inputRoomType = document.querySelector('#type');
+  var defaultInputRoomType = inputRoomType.value;
+  var inputHousingType = document.querySelector('#housing-type');
+  var inputHousingPrice = document.querySelector('#housing-price');
+  var inputHousingRooms = document.querySelector('#housing-rooms');
+  var inputHousingGuests = document.querySelector('#housing-guests');
+  var inputFeatures = document.querySelectorAll('input[name="features"]');
 
   /**
    * Акивирует страницу при клике левой кнопкой мыши
@@ -72,8 +72,7 @@
    * Вызывает функцию сброса страницы в начальное состояние
    * @param {Object} evt - событие reset
    */
-  var onResetPress = function (evt) {
-    evt.preventDefault();
+  var onResetPress = function () {
     setActiveState(false);
   };
 
@@ -117,7 +116,7 @@
    * @param {Object} evt - нажатая кнопка мыши
    */
   var onPopupMousePress = function (evt) {
-    if (evt.button === LEFT_MOUSE_BUTTON_CODE && evt.target.classList.value !== 'success__message' && document.querySelector('.success') !== null) {
+    if (evt.button === LEFT_MOUSE_BUTTON_CODE && document.querySelector('.success') !== null) {
       closeEventPopup(true);
     } else if (evt.button === LEFT_MOUSE_BUTTON_CODE && evt.target.classList.value !== 'error__message' && document.querySelector('.error') !== null) {
       closeEventPopup(false);
@@ -232,11 +231,6 @@
   };
 
   var getCheckedFilters = function (items) {
-    var inputHousingType = document.querySelector('#housing-type');
-    var inputHousingPrice = document.querySelector('#housing-price');
-    var inputHousingRooms = document.querySelector('#housing-rooms');
-    var inputHousingGuests = document.querySelector('#housing-guests');
-    var inputHousingFeatures = document.querySelector('#housing-features');
     var filterType = true;
     var filterPrice = true;
     var filterRooms = true;
@@ -267,7 +261,7 @@
       filterGuests = items.offer.guests.toString() === inputHousingGuests.value;
     }
 
-    var checkedFeatures = inputHousingFeatures.querySelectorAll('input[name="features"]:checked');
+    var checkedFeatures = document.querySelectorAll('input[name="features"]:checked');
     if (checkedFeatures.length) {
       checkedFeatures.forEach(function (item) {
         if (items.offer.features.indexOf(item.value) === -1) {
@@ -305,6 +299,12 @@
     var adFormHeader = document.querySelector('.ad-form-header');
     var adFormElement = document.querySelectorAll('.ad-form__element');
     var inputAddress = document.querySelector('#address');
+    var inputTitle = document.querySelector('#title');
+    var inputPrice = document.querySelector('#price');
+    var inputDescription = document.querySelector('#description');
+    var inputCheckbox = document.querySelectorAll('.feature__checkbox');
+    var previewAvatar = document.querySelector('.ad-form-header__preview img');
+    var previewPhoto = document.querySelector('.ad-form__photo');
 
     if (flag) {
       window.backend.load(successHandler, errorHandler);
@@ -326,15 +326,23 @@
       inputAddress.setAttribute('readonly', 'true');
       mapPinMain.removeEventListener('mousedown', onMousePressActivate);
       mapPinMain.removeEventListener('keydown', onKeyPressActivate);
+      mapPinMain.addEventListener('mousedown', window.move.qqq);
       inputRoomNumber.addEventListener('change', window.form.setValidation);
       inputRoomType.addEventListener('change', window.form.setValidation);
       inputTimeIn.addEventListener('change', window.form.setValidation);
       inputTimeOut.addEventListener('change', window.form.setValidation);
-      window.move.mainPin();
+      // window.move.mainPin();
 
       adForm.addEventListener('submit', onSubmitPress);
       adForm.addEventListener('reset', onResetPress);
     } else {
+      inputHousingType.value = DEFAULT_FILTER_VALUE;
+      inputHousingPrice.value = DEFAULT_FILTER_VALUE;
+      inputHousingRooms.value = DEFAULT_FILTER_VALUE;
+      inputHousingGuests.value = DEFAULT_FILTER_VALUE;
+      inputFeatures.forEach(function (item) {
+        item.checked = false;
+      });
       previewPhoto.style = '';
       previewAvatar.src = DEFAULT_AVATAR_IMAGE;
       inputTitle.value = '';
@@ -342,6 +350,7 @@
       inputDescription.value = '';
       mapPinMain.style.cssText = defaultMainPinPosition;
       inputRoomNumber.value = defaultInputRoomNumber;
+      inputRoomType.value = defaultInputRoomType;
       inputTimeIn.value = defaultInputTimeIn;
       inputTimeOut.value = defaultInputTimeOut;
       map.classList.add('map--faded');
@@ -368,6 +377,7 @@
       });
       window.form.setValidation(inputRoomNumber, true);
       window.form.setValidation(inputRoomType, true);
+      mapPinMain.removeEventListener('mousedown', window.move.qqq);
       mapPinMain.addEventListener('mousedown', onMousePressActivate);
       mapPinMain.addEventListener('keydown', onKeyPressActivate);
       adForm.removeEventListener('submit', onSubmitPress);
