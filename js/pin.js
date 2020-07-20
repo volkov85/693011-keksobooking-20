@@ -26,16 +26,31 @@ window.pin = (function () {
       return cardElement;
     },
 
+    /**
+     * Возвращает текущую координату X главного пина
+     * @param {Object} node - главный пин
+     * @return {number} activeX - координата X
+     */
     getMainPinPositionX: function (node) {
       var activeX = Math.round(Number(node.style.left.slice(0, node.style.left.length - 2)) + MainPinSize.WIDTH / 2);
       return activeX;
     },
 
+    /**
+     * Возвращает текущую координату Y главного пина
+     * @param {Object} node - главный пин
+     * @return {number} activeY - координата Y
+     */
     getMainPinPositionY: function (node) {
       var activeY = Math.round(Number(node.style.top.slice(0, node.style.top.length - 2)) + MainPinSize.HEIGHT + MainPinSize.TRIANGLE_HEIGHT);
       return activeY;
     },
 
+    /**
+     * Возвращает текущую координату Y главного пина в момент, когда страница не активирована
+     * @param {Object} node - главный пин
+     * @return {number} activeY - координата Y
+     */
     getMainPinNoneAtiveY: function (node) {
       var activeY = Math.round(Number(node.style.top.slice(0, node.style.top.length - 2)) - MainPinSize.HEIGHT / 2);
       return activeY;

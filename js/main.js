@@ -230,6 +230,11 @@
     });
   };
 
+  /**
+   * Возвращает булевское значение для передачи в метод filter()
+   * @param {Object} items - объекты, которые нужно отфильтровать
+   * @return {boolean} - результат фильтрации
+   */
   var getCheckedFilters = function (items) {
     var filterType = true;
     var filterPrice = true;
